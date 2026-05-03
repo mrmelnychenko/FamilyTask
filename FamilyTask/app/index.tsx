@@ -1,5 +1,5 @@
-import { Redirect } from 'expo-router';
+import RootNavigator from '@/src/navigation/Navigation';
 
-export default function Index() {
-  return <Redirect href="/register" />;
+export default function App() {
+  return <RootNavigator />;
 }
