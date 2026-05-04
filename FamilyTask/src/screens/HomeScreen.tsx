@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useEffect, useState } from 'react';
 import { supabase } from '@/src/lib/supabase';
+import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export function HomeScreen() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -19,6 +20,7 @@ export function HomeScreen() {
       Alert.alert('Error', error.message);
       return;
     }
+    router.replace('/login');
   }
 
   return (
@@ -32,7 +34,7 @@ export function HomeScreen() {
       <View style={styles.card}>
         <Text style={styles.label}>User email:</Text>
         <Text style={styles.value}>
-          {user || 'Loading...'}
+          {user?.email || 'Loading...'}
         </Text>
       </View>
 

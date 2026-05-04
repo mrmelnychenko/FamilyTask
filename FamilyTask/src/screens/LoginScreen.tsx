@@ -1,18 +1,17 @@
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { supabase } from '../lib/supabase';
+
 import { Button } from '../components/ui/Button';
 import { Typo } from '../components/ui/Typo';
-
+import { supabase } from '../lib/supabase';
 
 export function LoginScreen() {
   const [email, setEmail] = useState<string>('');
@@ -22,29 +21,30 @@ export function LoginScreen() {
   async function handleLogin() {
     try {
       if (!email.trim()) {
-        Alert.alert('Error', 'Please enter your email');
+        Alert.alert('Помилка', 'Введи email');
         return;
       }
-  
+
       if (!password.trim()) {
-        Alert.alert('Error', 'Please enter your password');
+        Alert.alert('Помилка', 'Введи пароль');
         return;
       }
-  
+
       setLoading(true);
-  
+
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
-  
+
       if (error) {
-        Alert.alert('Login failed', error.message);
+        Alert.alert('Помилка входу', error.message);
         return;
       }
-  
+
+      router.replace('/home');
     } catch (error) {
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+      Alert.alert('Помилка', 'Щось пішло не так. Спробуй ще раз.');
     } finally {
       setLoading(false);
     }
@@ -56,18 +56,11 @@ export function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View className="bg-card rounded-2xl p-6 border-2 border-primary-light shadow-lg">
-
-        <View className='flex flex-col items-center gap-2 mb-3'>
-          <Typo variant='h1'>
-            FamilyTask
-          </Typo>
-
-          <Typo variant='h2'>
-            Раді бачити тебе знову
-          </Typo>
+        <View className="flex flex-col items-center gap-2 mb-5">
+          <Typo variant="h1">FamilyTask</Typo>
+          <Typo variant="h2">Раді бачити тебе знову</Typo>
         </View>
 
-        {/* EMAIL */}
         <TextInput
           className="bg-background border border-border rounded-xl px-4 py-4 text-base mb-3"
           placeholder="Email"
@@ -77,7 +70,6 @@ export function LoginScreen() {
           keyboardType="email-address"
         />
 
-        {/* PASSWORD */}
         <TextInput
           className="bg-background border border-border rounded-xl px-4 py-4 text-base mb-3"
           placeholder="Пароль"
@@ -86,7 +78,6 @@ export function LoginScreen() {
           secureTextEntry
         />
 
-        {/* BUTTON */}
         <Button
           title="Увійти"
           loading={loading}
@@ -94,13 +85,16 @@ export function LoginScreen() {
           onPress={handleLogin}
         />
 
-        {/* FORGOT PASSWORD */}
         <TouchableOpacity className="mt-5 items-center">
-          <Typo variant='body'>
-            Забули пароль?
-          </Typo>
+          <Typo variant="body">Забули пароль?</Typo>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          className="mt-4 items-center"
+          onPress={() => router.push('/register')}
+        >
+          <Typo variant="body">Немає акаунту? Реєстрація</Typo>
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
