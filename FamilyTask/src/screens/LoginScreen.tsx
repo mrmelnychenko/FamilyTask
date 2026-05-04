@@ -20,7 +20,9 @@ export function LoginScreen() {
 
   async function handleLogin() {
     try {
-      if (!email.trim()) {
+      const cleanEmail = email.trim().toLowerCase();
+
+      if (!cleanEmail) {
         Alert.alert('Помилка', 'Введи email');
         return;
       }
@@ -33,17 +35,17 @@ export function LoginScreen() {
       setLoading(true);
 
       const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: cleanEmail,
         password,
       });
 
       if (error) {
-        Alert.alert('Помилка входу', error.message);
+        Alert.alert('Помилка входу', 'Невірний email або пароль');
         return;
       }
 
       router.replace('/home');
-    } catch (error) {
+    } catch {
       Alert.alert('Помилка', 'Щось пішло не так. Спробуй ще раз.');
     } finally {
       setLoading(false);
@@ -67,6 +69,7 @@ export function LoginScreen() {
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
+          autoCorrect={false}
           keyboardType="email-address"
         />
 
