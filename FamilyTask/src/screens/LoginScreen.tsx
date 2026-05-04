@@ -68,7 +68,7 @@ export function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={styles.card}>
-        <Text style={styles.title}>FamilyTask</Text>
+        <Text className='text-black text-h1 text-center'>FamilyTask</Text>
         <Text style={styles.subtitle}>Раді бачити тебе знову!</Text>
 
         <TextInput
