@@ -4,59 +4,47 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
+import { Button } from '../components/ui/Button';
+import { Typo } from '../components/ui/Typo';
 
-const COLORS = {
-  primary: '#A855F7',
-  background: '#F9FAFB',
-  card: '#FFFFFF',
-  textMain: '#111827',
-  textMuted: '#6B7280',
-  border: '#E5E7EB',
-  primaryLight: '#EDE9FE',
-};
 
 export function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
 
   async function handleLogin() {
     try {
       if (!email.trim()) {
-        Alert.alert('Помилка', 'Введи email');
+        Alert.alert('Error', 'Please enter your email');
         return;
       }
-
+  
       if (!password.trim()) {
-        Alert.alert('Помилка', 'Введи пароль');
+        Alert.alert('Error', 'Please enter your password');
         return;
       }
-
+  
       setLoading(true);
-
-      // Используем метод signInWithPassword для входа
+  
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
-
+  
       if (error) {
-        // Выводим ошибку на украинском, как прописано в правилах
-        Alert.alert('Помилка входу', error.message);
+        Alert.alert('Login failed', error.message);
         return;
       }
-
-      // Если ошибок нет, Supabase автоматически обновит состояние сессии
-      // Навигация переключит пользователя на главный экран
+  
     } catch (error) {
-      Alert.alert('Помилка', 'Сталася невідома помилка');
+      Alert.alert('Error', 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -64,15 +52,24 @@ export function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      className="flex-1 bg-background justify-center px-5"
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.card}>
-        <Text className='text-black text-h1 text-center'>FamilyTask</Text>
-        <Text style={styles.subtitle}>Раді бачити тебе знову!</Text>
+      <View className="bg-card rounded-2xl p-6 border-2 border-primary-light shadow-lg">
 
+        <View className='flex flex-col items-center gap-2 mb-3'>
+          <Typo variant='h1'>
+            FamilyTask
+          </Typo>
+
+          <Typo variant='h2'>
+            Раді бачити тебе знову
+          </Typo>
+        </View>
+
+        {/* EMAIL */}
         <TextInput
-          style={styles.input}
+          className="bg-background border border-border rounded-xl px-4 py-4 text-base mb-3"
           placeholder="Email"
           value={email}
           onChangeText={setEmail}
@@ -80,101 +77,31 @@ export function LoginScreen() {
           keyboardType="email-address"
         />
 
+        {/* PASSWORD */}
         <TextInput
-          style={styles.input}
+          className="bg-background border border-border rounded-xl px-4 py-4 text-base mb-3"
           placeholder="Пароль"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleLogin}
+        {/* BUTTON */}
+        <Button
+          title="Увійти"
+          loading={loading}
           disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Увійти</Text>
-          )}
+          onPress={handleLogin}
+        />
+
+        {/* FORGOT PASSWORD */}
+        <TouchableOpacity className="mt-5 items-center">
+          <Typo variant='body'>
+            Забули пароль?
+          </Typo>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.secondaryButton}>
-          <Text style={styles.secondaryButtonText}>Забули пароль?</Text>
-        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    backgroundColor: COLORS.card,
-    borderRadius: 20,
-    padding: 24,
-    borderWidth: 2,
-    borderColor: COLORS.primaryLight,
-    // Добавляем тени согласно дизайн-системе
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 4,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: COLORS.textMain,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.textMuted,
-    textAlign: 'center',
-    marginBottom: 28,
-    marginTop: 8,
-  },
-  input: {
-    backgroundColor: COLORS.background,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 14,
-    padding: 16,
-    fontSize: 16,
-    marginBottom: 14,
-  },
-  button: {
-    backgroundColor: COLORS.primary,
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 10,
-    // Тень для кнопки CTA из системного промпта[cite: 1]
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  secondaryButton: {
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  secondaryButtonText: {
-    color: COLORS.textMuted,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});

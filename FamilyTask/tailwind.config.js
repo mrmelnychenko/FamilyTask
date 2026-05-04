@@ -9,6 +9,11 @@ module.exports = {
     presets: [require("nativewind/preset")],
     theme: {
         extend: {
+            fontFamily: {
+                nunito: ['Nunito-Regular'],
+                'nunito-bold': ['Nunito-Bold'],
+                'nunito-extra': ['Nunito-ExtraBold'],
+            },
             colors: {
                 black: '#000000',
                 primary: '#A855F7',
@@ -40,11 +45,11 @@ module.exports = {
                 light: '#9CA3AF',
             },
             fontSize: {
-                h1: ['24px', { fontWeight: '800' }],
-                h2: ['18px', { fontWeight: '700' }],
-                body: ['14px', { fontWeight: '400' }],
-                label: ['11px', { fontWeight: '700' }],
-                points: ['12px', { fontWeight: '800' }],
+                h1: ['24px'],
+                h2: ['18px'],
+                body: ['14px'],
+                label: ['11px'],
+                points: ['12px'],
             },
         },
     },
