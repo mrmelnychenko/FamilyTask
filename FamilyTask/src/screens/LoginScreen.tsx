@@ -43,8 +43,6 @@ export function LoginScreen() {
         Alert.alert('Помилка входу', 'Невірний email або пароль');
         return;
       }
-
-      router.replace('/home');
     } catch {
       Alert.alert('Помилка', 'Щось пішло не так. Спробуй ще раз.');
     } finally {

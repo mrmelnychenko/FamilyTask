@@ -1,31 +1,53 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createClient } from '@supabase/supabase-js';
-import { Platform } from 'react-native';
-import 'react-native-url-polyfill/auto';
+import { createClient } from '@supabase/supabase-js'
+import 'react-native-url-polyfill/auto'
+import { deleteItemAsync, getItemAsync, setItemAsync } from 'expo-secure-store'
+import { Platform } from 'react-native'
 
-const supabaseUrl = 'https://imoctleblolieptkpumq.supabase.co'
-const supabaseAnonKey = 'sb_publishable_ftZczAqycXvhZzyVV9l-FQ_xromG_J5'
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL
+const supabasePublishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 
-const webStorage = {
+const storage = {
   getItem: async (key: string) => {
-    if (typeof window === 'undefined') return null;
-    return window.localStorage.getItem(key);
+    try {
+      if (Platform.OS === 'web') {
+        return localStorage.getItem(key);
+      }
+      return await getItemAsync(key);
+    } catch {
+      return null;
+    }
   },
+
   setItem: async (key: string, value: string) => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.setItem(key, value);
+    try {
+      if (Platform.OS === 'web') {
+        localStorage.setItem(key, value);
+        return;
+      }
+      await setItemAsync(key, value);
+    } catch {}
   },
+
   removeItem: async (key: string) => {
-    if (typeof window === 'undefined') return;
-    window.localStorage.removeItem(key);
+    try {
+      if (Platform.OS === 'web') {
+        localStorage.removeItem(key);
+        return;
+      }
+      await deleteItemAsync(key);
+    } catch {}
   },
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: Platform.OS === 'web' ? webStorage : AsyncStorage,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
-});
+export const supabase = createClient(
+  supabaseUrl ?? '',
+  supabasePublishableKey ?? '',
+  {
+    auth: {
+      storage,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+    },
+  }
+)

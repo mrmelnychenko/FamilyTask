@@ -20,7 +20,6 @@ export function HomeScreen() {
       Alert.alert('Error', error.message);
       return;
     }
-    router.replace('/login');
   }
 
   return (
