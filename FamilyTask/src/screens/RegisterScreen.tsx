@@ -65,7 +65,6 @@ export function RegisterScreen() {
         return;
       }
 
-      router.replace('/home');
     } catch (error) {
       Alert.alert('Помилка', 'Сталася невідома помилка');
     } finally {
