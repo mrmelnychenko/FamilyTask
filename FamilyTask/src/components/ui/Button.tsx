@@ -1,29 +1,44 @@
-import { Pressable, Text, ActivityIndicator } from "react-native";
+import { Pressable, ActivityIndicator, View } from "react-native";
+import { cn } from "@/src/utils/cn";
+
 type ButtonVariant = "primary" | "secondary" | "danger";
 
 type ButtonProps = {
-  title: string;
+  children: React.ReactNode;
   onPress?: () => void;
   loading?: boolean;
   disabled?: boolean;
   variant?: ButtonVariant;
+  className?: string;
 };
+
 export function Button({
-  title,
+  children,
   onPress,
   loading = false,
   disabled = false,
   variant = "primary",
+  className,
 }: ButtonProps) {
+  const baseStyles =
+    "flex-row items-center justify-center px-6 py-4 rounded-2xl";
+
+  const variantStyles = {
+    primary: "bg-primary",
+    secondary: "bg-primary-dark",
+    danger: "bg-red-500",
+  };
+
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
-      className={`
-        px-6 py-3 rounded-2xl items-center justify-center
-        ${variant === "primary" ? "bg-primary" : "bg-primary-dark"}
-        ${disabled ? "opacity-50" : ""}
-      `}
+      className={cn(
+        baseStyles,
+        variantStyles[variant],
+        disabled && "opacity-50",
+        className
+      )}
       style={({ pressed }) => [
         pressed && { opacity: 0.8 },
         {
@@ -38,9 +53,9 @@ export function Button({
       {loading ? (
         <ActivityIndicator color="white" />
       ) : (
-        <Text className="text-white font-nunito-bold text-base">
-          {title}
-        </Text>
+        <View className="flex-row items-center gap-2">
+          {children}
+        </View>
       )}
     </Pressable>
   );

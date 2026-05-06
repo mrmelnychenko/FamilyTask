@@ -1,30 +1,53 @@
+import { cn } from "@/src/utils/cn";
 import React from "react";
-import { Text as RNText, TextProps } from "react-native";
+import { Text as RNText, TextProps, StyleProp, TextStyle } from "react-native";
 
-type Variant = "h1" | "h2" | "body" | "label" | "points";
+type Variant = "h1" | "h2" | "h3" | "body" | "label" | "points";
 
 type Props = TextProps & {
   variant?: Variant;
+  style?: StyleProp<TextStyle>;
 };
 
-const variants: Record<Variant, string> = {
-  h1: "text-[24px] font-nunito-bold text-text",
-  h2: "text-[18px] font-nunito-bold text-text",
-  body: "text-[14px] font-nunito text-muted",
-  label: "text-[11px] font-nunito-bold text-light",
-  points: "text-[12px] font-nunito-bold text-white",
+const variants: Record<Variant, TextStyle> = {
+  h1: {
+    fontSize: 32,
+    fontFamily: "Nunito-ExtraBold",
+  },
+  h2: {
+    fontSize: 24,
+    fontFamily: "Nunito-Bold",
+  },
+  h3: {
+    fontSize: 16,
+    fontFamily: "Nunito-Bold",
+  },
+  body: {
+    fontSize: 14,
+    fontFamily: "Nunito-Regular",
+  },
+  label: {
+    fontSize: 11,
+    fontFamily: "Nunito-Bold",
+  },
+  points: {
+    fontSize: 12,
+    fontFamily: "Nunito-Bold",
+  },
 };
 
 export function Typo({
   variant = "body",
   className,
+  style,
   children,
   ...props
 }: Props) {
   return (
     <RNText
       {...props}
-      className={`${variants[variant]} ${className ?? ""}`}
+      style={[variants[variant], style]}
+      className={cn("text-text", className)}
     >
       {children}
     </RNText>
