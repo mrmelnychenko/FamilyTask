@@ -9,14 +9,10 @@ module.exports = {
     presets: [require("nativewind/preset")],
     theme: {
         extend: {
-            fontFamily: {
-                nunito: ['Nunito-Regular'],
-                'nunito-bold': ['Nunito-Bold'],
-                'nunito-extra': ['Nunito-ExtraBold'],
-            },
             colors: {
                 black: '#000000',
                 primary: '#A855F7',
+
                 'primary-dark': '#7C3AED',
                 'primary-light': '#EDE9FE',
 
@@ -32,12 +28,13 @@ module.exports = {
                 pink: '#EC4899',
                 gold: '#F59E0B',
                 'gold-bg': '#FFFBEB',
+                'pink-bg': '#FDF2F8',
 
                 streak: '#F97316',
                 'streak-bg': '#FFF7ED',
 
                 background: '#F9FAFB',
-                card: '#FFFFFF',
+                white: '#FFFFFF',
                 border: '#E5E7EB',
 
                 text: '#111827',
@@ -45,11 +42,12 @@ module.exports = {
                 light: '#9CA3AF',
             },
             fontSize: {
-                h1: ['24px'],
-                h2: ['18px'],
-                body: ['14px'],
-                label: ['11px'],
-                points: ['12px'],
+                h1: "32px",
+                h2: "24px",
+                h3: "16px",
+                body: "14px",
+                label: "11px",
+                points: "12px",
             },
         },
     },

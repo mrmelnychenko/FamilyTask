@@ -80,11 +80,14 @@ export function LoginScreen() {
         />
 
         <Button
-          title="Увійти"
           loading={loading}
           disabled={loading}
           onPress={handleLogin}
-        />
+        >
+          <Typo className='text-white'>
+            Увійти
+          </Typo>
+        </Button>
 
         <TouchableOpacity className="mt-5 items-center">
           <Typo variant="body">Забули пароль?</Typo>
