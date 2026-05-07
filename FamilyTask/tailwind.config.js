@@ -33,7 +33,7 @@ module.exports = {
                 streak: '#F97316',
                 'streak-bg': '#FFF7ED',
 
-                background: '#F9FAFB',
+                background: '#E9ECF4',
                 white: '#FFFFFF',
                 border: '#E5E7EB',
 

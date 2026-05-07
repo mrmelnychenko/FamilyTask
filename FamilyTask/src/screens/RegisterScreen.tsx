@@ -3,8 +3,6 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -73,10 +71,7 @@ export function RegisterScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    
       <View style={styles.card}>
         <Text style={styles.title}>Реєстрація</Text>
         <Text style={styles.subtitle}>Створи акаунт безкоштовно</Text>
@@ -140,7 +135,7 @@ export function RegisterScreen() {
           <Text style={styles.loginLinkText}>Вже є акаунт? Увійти</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    
   );
 }
 
