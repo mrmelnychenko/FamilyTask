@@ -1,7 +1,7 @@
 import { supabase } from '@/src/lib/supabase';
 import { AUTH_ERRORS } from '@/src/utils/error';
 import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Pressable,
@@ -57,7 +57,7 @@ export function LoginForm() {
   
       try {
         setLoading(true);
-        const { error: supabaseError } = await supabase.auth.signInWithPassword({
+        const { data, error: supabaseError } = await supabase.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
           password,
         });
@@ -71,7 +71,22 @@ export function LoginForm() {
           } else {
             setGeneralError(message);
           }
+
+          return;
         }
+
+        if (!data.user) {
+          setGeneralError("Не вдалося отримати користувача");
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('family_id')
+          .eq('id', data.user.id)
+          .maybeSingle();
+
+        router.replace((profile?.family_id ? '/home' : '/family-setup') as Href);
       } catch (err) {
         setGeneralError("Server error. Please try again later");
       } finally {

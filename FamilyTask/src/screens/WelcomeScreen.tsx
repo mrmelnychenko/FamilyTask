@@ -1,4 +1,4 @@
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { Typo } from '../components/ui/Typo';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -78,12 +78,12 @@ export function WelcomeScreen() {
             }
           </View>
           <View className='px-4 mt-6 pb-10 gap-4'>
-            <Button onPress={() => router.navigate('/register')}>
+            <Button onPress={() => router.push('/register' as Href)}>
               <Typo variant='h3' className='text-white'>
                 Почати
               </Typo>
             </Button>
-            <Button className='border border-border bg-transparent' onPress={() => router.navigate('/register')}>
+            <Button className='border border-border bg-transparent' onPress={() => router.push('/login' as Href)}>
               <Typo variant='h3' className='text-muted'>
                 Вже маю акаунт — Увійти
               </Typo>
