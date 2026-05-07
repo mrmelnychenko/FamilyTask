@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { Typo } from '../components/ui/Typo';
-import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { GuestHeader } from '../components/ui/header/GuestHeader';
 import { TargetIcon } from '../components/icons/TargetIcon';
@@ -42,14 +41,8 @@ export const features = [
 
 export function WelcomeScreen() {
   return (
-    <SafeAreaView className='flex-1 '>
+    <SafeAreaView className='flex-1 bg-background'>
 
-      <LinearGradient
-        colors={["#F3E8FF", "#EDE9FE", "#FDF4FF"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ flex: 1 }}
-      >
         <GuestHeader />
         <ScrollView 
          contentContainerStyle={{ flexGrow: 1 }}
@@ -97,7 +90,6 @@ export function WelcomeScreen() {
             </Button>
           </View>
         </ScrollView>
-      </LinearGradient>
     </SafeAreaView >
   );
 }

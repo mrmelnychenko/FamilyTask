@@ -21,7 +21,7 @@ export function Button({
   className,
 }: ButtonProps) {
   const baseStyles =
-    "flex-row items-center justify-center px-6 py-4 rounded-2xl";
+    "flex-row items-center justify-center px-6 py-4 rounded-full";
 
   const variantStyles = {
     primary: "bg-primary",

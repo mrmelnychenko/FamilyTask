@@ -20,11 +20,13 @@ export const colors = {
     streak: "#F97316",
     streakBg: "#FFF7ED",
   
-    background: "#F9FAFB",
-    white: "#FFFFFF",
+    background: "#E9ECF4",
     border: "#E5E7EB",
-  
+    
     text: "#111827",
     muted: "#6B7280",
     light: "#9CA3AF",
+    
+    white: "#FFFFFF",
+    black: "#000000",
   };
