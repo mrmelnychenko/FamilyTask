@@ -1,4 +1,4 @@
-import { Href, router } from 'expo-router';
+import { Href, Redirect, router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import { Typo } from '../components/ui/Typo';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,6 +10,7 @@ import { Box } from '../components/ui/Box';
 import { cn } from '../utils/cn';
 import { colors } from '../utils/colors';
 import { Button } from '../components/ui/Button';
+import { useAuth } from '../hooks/useAuth';
 
 
 export const features = [
@@ -40,6 +41,14 @@ export const features = [
 ];
 
 export function WelcomeScreen() {
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+
+  if (user) {
+    return <Redirect href="/home" />;
+  }
+  
   return (
     <SafeAreaView className='flex-1 bg-background'>
 

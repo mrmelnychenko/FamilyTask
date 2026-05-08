@@ -9,33 +9,30 @@ export default function ProtectedLayout() {
   const { data: familyMember, isLoading } =
     useCurrentFamily(user?.id);
 
-  const pathname = usePathname();
-  const isFamilySetup = pathname === "/family-setup";
-
-  const isNoFamily = familyMember === null;
-  const isHasFamily = !!familyMember;
-
-  const isReady = !loading && !isLoading;
-
-  // 1. auth loading
-  if (!isReady) {
-    return <LoadingScreen />;
-  }
-
-  // 2. no auth
-  if (!user) {
-    return <Redirect href="/login" />;
-  }
-
-  // 3. no family → setup
-  if (isNoFamily && !isFamilySetup) {
-    return <Redirect href="/family-setup" />;
-  }
-
-  // 4. has family → prevent setup screen
-  if (isHasFamily && isFamilySetup) {
-    return <Redirect href="/home" />;
-  }
+    const pathname = usePathname();
+    const isFamilySetup = pathname === "/family-setup";
+  
+    const hasFamily = !!familyMember?.family_id;
+  
+    const isLoadingState = loading || isLoading;
+  
+    if (isLoadingState) {
+      return <LoadingScreen />;
+    }
+  
+    if (!user) {
+      return <Redirect href="/login" />;
+    }
+  
+    // no family → force setup
+    if (!hasFamily && !isFamilySetup) {
+      return <Redirect href="/family-setup" />;
+    }
+  
+    // has family → block setup screen
+    if (hasFamily && isFamilySetup) {
+      return <Redirect href="/home" />;
+    }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
