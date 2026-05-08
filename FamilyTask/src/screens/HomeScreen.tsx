@@ -1,23 +1,35 @@
 import { supabase } from '@/src/lib/supabase';
-import { router } from 'expo-router';
+import { Href, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+type HomeUser = {
+  email?: string;
+};
+
 export function HomeScreen() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<HomeUser | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user as any);
-    //   but we need types and delede type any
-    });
+    loadUser();
   }, []);
+
+  async function loadUser() {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      Alert.alert('Помилка', 'Не вдалося завантажити користувача.');
+      return;
+    }
+
+    setUser(data.user);
+  }
 
   async function handleLogout() {
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      Alert.alert('Error', error.message);
+      Alert.alert('Помилка', 'Не вдалося вийти з акаунта.');
       return;
     }
   }
@@ -31,14 +43,18 @@ export function HomeScreen() {
       </Text>
 
       <View style={styles.card}>
-        <Text style={styles.label}>User email:</Text>
+        <Text style={styles.label}>Email користувача:</Text>
         <Text style={styles.value}>
-          {user?.email || 'Loading...'}
+          {user?.email || 'Завантаження...'}
         </Text>
       </View>
 
+      <TouchableOpacity style={styles.createButton} onPress={() => router.push('/(protected)/create-task' as Href)}>
+        <Text style={styles.buttonText}>Створити задачу</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.button} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Logout</Text>
+        <Text style={styles.buttonText}>Вийти</Text>
       </TouchableOpacity>
     </View>
   );
@@ -84,6 +100,13 @@ const styles = StyleSheet.create({
     padding: 14,
     borderRadius: 14,
     alignItems: 'center',
+  },
+  createButton: {
+    backgroundColor: '#A855F7',
+    padding: 14,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginBottom: 12,
   },
   buttonText: {
     color: '#fff',

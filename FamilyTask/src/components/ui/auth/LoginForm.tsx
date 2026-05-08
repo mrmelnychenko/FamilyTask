@@ -7,15 +7,19 @@ import {
   Pressable,
   View,
 } from 'react-native';
+
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { LoginFormData, loginSchema } from '@/src/schemas/auth.schema';
+
 import { Input } from '../Input';
 import { Typo } from '../Typo';
 import { Button } from '../Button';
 import { Divider } from '../Divider';
+
 import { GoogleIcon } from '../../icons/GoogleIcon';
 import { AuthSwitchLink } from './AuthSwitchLink';
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginFormData, loginSchema } from '@/src/schemas/auth.schema';
 
 export function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -42,8 +46,10 @@ export function LoginForm() {
         email: data.email.trim().toLowerCase(),
         password: data.password,
       });
+
       if (error) {
         setGeneralError(getAuthError(error.message));
+        return;
       }
 
     } catch {
@@ -98,7 +104,6 @@ export function LoginForm() {
       {/* FORGOT PASSWORD */}
       <Pressable
         className="self-end"
-        // onPress={() => router.push("/forgot-password")}
         onPress={() => router.push("/")}
       >
         <Typo variant="label" className="text-primary">
