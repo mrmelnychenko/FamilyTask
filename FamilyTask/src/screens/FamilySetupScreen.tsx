@@ -1,248 +1,108 @@
-import { Feather } from '@expo/vector-icons';
-import { Href, router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  TextInput,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from '@/src/components/ui/Button';
-import { Typo } from '@/src/components/ui/Typo';
-import { useAuth } from '@/src/hooks/useAuth';
-import { supabase } from '@/src/lib/supabase';
-import { cn } from '@/src/utils/cn';
-import { colors } from '@/src/utils/colors';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-type SetupMode = 'create' | 'join';
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-type Invite = {
-  family_id: string;
-  email: string | null;
-  status: string | null;
-};
+import { Button } from "@/src/components/ui/Button";
+import { Typo } from "@/src/components/ui/Typo";
+import { Input } from "@/src/components/ui/Input";
 
-type Profile = {
-  id: string;
-  email: string | null;
-  name: string | null;
-  avatar_emoji: string | null;
-  role: string | null;
-  family_id: string | null;
-};
+import { useAuth } from "@/src/hooks/useAuth";
+import { useProfile } from "@/src/hooks/queries/useProfile";
+import { useCreateFamily } from "../hooks/queries/useFamily";
+
+import { cn } from "@/src/utils/cn";
+import { colors } from "@/src/utils/colors";
+import { getFamilyError } from "../utils/family-error";
+
+import {
+  createFamilySchema,
+  CreateFamilyForm,
+} from "../schemas/family.schema";
 
 export function FamilySetupScreen() {
-  const { user, profile, refreshProfile, signOut } = useAuth();
-  const [localProfile, setLocalProfile] = useState<Profile | null>(profile);
-  const [profileReady, setProfileReady] = useState(false);
-  const [mode, setMode] = useState<SetupMode>('create');
-  const [familyName, setFamilyName] = useState('');
-  const [inviteCode, setInviteCode] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { user, signOut } = useAuth();
+  const { data: profile, isLoading } = useProfile(user?.id);
 
-  const activeProfile = profile ?? localProfile;
+  const createFamily = useCreateFamily();
+  // const joinFamily = useJoinFamily();
 
-  useEffect(() => {
-    setLocalProfile(profile);
-  }, [profile]);
+  const [mode, setMode] = useState<"create" | "join">("create");
+  const [inviteCode, setInviteCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const ensureProfile = useCallback(async () => {
-    if (!user) {
-      setProfileReady(true);
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateFamilyForm>({
+    resolver: zodResolver(createFamilySchema),
+    defaultValues: {
+      name: "",
+    },
+  });
 
-    try {
-      setProfileReady(false);
+  async function handleCreateFamily(data: CreateFamilyForm) {
+    if (!user) return;
 
-      const { data: existingProfile, error: selectError } = await supabase
-        .from('profiles')
-        .select('id, email, name, avatar_emoji, role, family_id')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (selectError) {
-        Alert.alert('Помилка', 'Не вдалося завантажити профіль.');
-        return;
-      }
-
-      if (existingProfile) {
-        setLocalProfile(existingProfile);
-        return;
-      }
-
-      const fallbackName =
-        typeof user.user_metadata?.name === 'string' && user.user_metadata.name.trim()
-          ? user.user_metadata.name.trim()
-          : user.email?.split('@')[0] || 'New User';
-
-      const { data: createdProfile, error: insertError } = await supabase
-        .from('profiles')
-        .insert({
-          id: user.id,
-          email: user.email ?? null,
-          name: fallbackName,
-          avatar_emoji: '😊',
-          role: 'MEMBER',
-        })
-        .select('id, email, name, avatar_emoji, role, family_id')
-        .single();
-
-      if (insertError || !createdProfile) {
-        Alert.alert('Помилка', 'Не вдалося створити профіль користувача.');
-        return;
-      }
-
-      setLocalProfile(createdProfile);
-      await refreshProfile();
-    } finally {
-      setProfileReady(true);
-    }
-  }, [refreshProfile, user]);
-
-  useEffect(() => {
-    ensureProfile();
-  }, [ensureProfile]);
-
-  async function handleCreateFamily() {
-    const trimmedName = familyName.trim();
-
-    if (!user) {
-      Alert.alert('Помилка', 'Потрібно увійти в акаунт.');
-      return;
-    }
-
-    if (!activeProfile) {
-      Alert.alert('Профіль не готовий', 'Зачекайте кілька секунд і спробуйте ще раз.');
-      return;
-    }
-
-    if (!trimmedName) {
-      Alert.alert('Помилка', 'Введіть назву сімʼї.');
-      return;
-    }
+    setError(null);
 
     try {
-      setLoading(true);
+      await createFamily.mutateAsync({
+        name: data.name,
+        userId: user.id,
+      });
 
-      const { data: family, error: familyError } = await supabase
-        .from('families')
-        .insert({
-          name: trimmedName,
-          created_by: activeProfile.id,
-        })
-        .select('id')
-        .single();
-
-      if (familyError || !family) {
-        Alert.alert('Помилка', 'Не вдалося створити сімʼю.');
-        return;
-      }
-
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ family_id: family.id })
-        .eq('id', activeProfile.id);
-
-      if (profileError) {
-        Alert.alert('Помилка', 'Сімʼю створено, але не вдалося оновити профіль.');
-        return;
-      }
-
-      await refreshProfile();
-      Alert.alert('Успішно', 'Сімʼю створено.');
-      router.replace('/(protected)/home' as Href);
-    } catch {
-      Alert.alert('Помилка', 'Сталася невідома помилка.');
-    } finally {
-      setLoading(false);
+      router.replace('/home');
+    } catch (e: any) {
+      setError(getFamilyError(e?.message));
     }
   }
 
-  async function handleJoinFamily() {
-    const normalizedCode = inviteCode.trim();
+  // async function handleJoinFamily() {
+  //   if (!user) return;
 
-    if (!user) {
-      Alert.alert('Помилка', 'Потрібно увійти в акаунт.');
-      return;
-    }
+  //   try {
+  //     await joinFamily.mutateAsync({
+  //       inviteCode: inviteCode.trim(),
+  //       userId: user.id,
+  //       email: profile?.email,
+  //     });
 
-    if (!activeProfile) {
-      Alert.alert('Профіль не готовий', 'Зачекайте кілька секунд і спробуйте ще раз.');
-      return;
-    }
-
-    if (!normalizedCode) {
-      Alert.alert('Помилка', 'Введіть код запрошення.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const { data: invite, error: inviteError } = await supabase
-        .from('invites')
-        .select('family_id, email, status')
-        .eq('invite_code', normalizedCode)
-        .maybeSingle<Invite>();
-
-      if (inviteError || !invite) {
-        Alert.alert('Помилка', 'Запрошення з таким кодом не знайдено.');
-        return;
-      }
-
-      if (invite.status && invite.status !== 'pending') {
-        Alert.alert('Помилка', 'Це запрошення вже неактивне.');
-        return;
-      }
-
-      if (invite.email && activeProfile.email && invite.email.toLowerCase() !== activeProfile.email.toLowerCase()) {
-        Alert.alert('Помилка', 'Цей код запрошення створено для іншого email.');
-        return;
-      }
-
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ family_id: invite.family_id })
-        .eq('id', activeProfile.id);
-
-      if (profileError) {
-        Alert.alert('Помилка', 'Не вдалося приєднатися до сімʼї.');
-        return;
-      }
-
-      await supabase
-        .from('invites')
-        .update({ status: 'accepted' })
-        .eq('invite_code', normalizedCode);
-
-      await refreshProfile();
-      Alert.alert('Успішно', 'Ви приєдналися до сімʼї.');
-      router.replace('/(protected)/home' as Href);
-    } catch {
-      Alert.alert('Помилка', 'Сталася невідома помилка.');
-    } finally {
-      setLoading(false);
-    }
-  }
+  //     router.replace("/(protected)/home");
+  //   } catch (e: any) {
+  //     setError(getFamilyError(e?.message));
+  //   }
+  // }
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView
-          contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 32 }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            padding: 16,
+            paddingBottom: 32,
+          }}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
         >
           <View className="flex-1 justify-center gap-5">
+
+            {/* HEADER */}
             <View className="items-center gap-3">
               <View className="h-20 w-20 items-center justify-center rounded-3xl bg-primary">
                 <Feather name="users" size={34} color="white" />
@@ -253,115 +113,117 @@ export function FamilySetupScreen() {
               </Typo>
 
               <Typo variant="h3" className="text-center text-muted">
-                Створіть сімейний простір або приєднайтесь за кодом запрошення.
+                Створіть або приєднайтесь до сімʼї
               </Typo>
             </View>
 
+            {/* MODE SWITCH */}
             <View className="flex-row rounded-full bg-white p-1 border border-border">
               <ModeButton
-                active={mode === 'create'}
+                active={mode === "create"}
                 label="Створити"
-                onPress={() => setMode('create')}
+                onPress={() => setMode("create")}
               />
               <ModeButton
-                active={mode === 'join'}
+                active={mode === "join"}
                 label="Приєднатися"
-                onPress={() => setMode('join')}
+                onPress={() => setMode("join")}
               />
             </View>
 
+            {/* CONTENT */}
             <View className="rounded-3xl bg-white p-5 border border-border gap-4">
-              {!profileReady && (
-                <View className="flex-row items-center gap-2 rounded-2xl bg-primary-light p-3">
+
+              {/* LOADING */}
+              {isLoading && (
+                <View className="flex-row items-center gap-2 p-3 rounded-2xl bg-primary-light">
                   <ActivityIndicator color={colors.primary} />
-                  <Typo className="text-muted">Готуємо профіль...</Typo>
+                  <Typo className="text-muted">Завантаження...</Typo>
                 </View>
               )}
 
-              {mode === 'create' ? (
+              {/* NO PROFILE */}
+              {!profile && !isLoading && (
+                <Typo className="text-danger">
+                  Профіль не знайдено
+                </Typo>
+              )}
+
+              {/* ERROR */}
+              {error && (
+                <View className="p-3 rounded-2xl bg-red-50 border border-danger">
+                  <Typo className="text-danger text-center">
+                    {error}
+                  </Typo>
+                </View>
+              )}
+
+              {/* CREATE */}
+              {mode === "create" ? (
                 <>
-                  <View>
-                    <Typo variant="h2">Створити сімʼю</Typo>
-                    <Typo className="mt-1 text-muted">
-                      Назвіть свій сімейний простір. Наприклад, “Сімʼя Мельниченко”.
-                    </Typo>
-                  </View>
+                  <Typo variant="h2">Створити сімʼю</Typo>
 
-                  <View className="gap-2">
-                    <Typo variant="label" className="uppercase text-muted">
-                      Назва сімʼї
-                    </Typo>
-                    <TextInput
-                      value={familyName}
-                      onChangeText={setFamilyName}
-                      placeholder="Сімʼя Олексія"
-                      placeholderTextColor={colors.light}
-                      className="rounded-2xl border border-border bg-background px-4 py-3 text-text"
-                      style={{ fontFamily: 'Nunito-Regular', fontSize: 15 }}
-                    />
-                  </View>
+                  <Controller
+                    control={control}
+                    name="name"
+                    render={({ field: { onChange, value } }) => (
+                      <Input
+                        label="Назва сімʼї"
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="Наприклад: Family Smith"
+                        icon={(color) => (
+                          <Feather name="home" size={18} color={color} />
+                        )}
+                        error={errors.name?.message}
+                      />
+                    )}
+                  />
 
-                  <Button onPress={handleCreateFamily} loading={loading} disabled={!profileReady}>
-                    <Typo variant="h3" className="text-white">
-                      Створити сімʼю
-                    </Typo>
+                  <Button
+                    onPress={handleSubmit(handleCreateFamily)}
+                    loading={createFamily.isPending}
+                  >
+                    <Typo className="text-white">Створити</Typo>
                   </Button>
                 </>
               ) : (
                 <>
-                  <View>
-                    <Typo variant="h2">Приєднатися</Typo>
-                    <Typo className="mt-1 text-muted">
-                      Введіть код запрошення, який вам надіслали.
-                    </Typo>
-                  </View>
+                  {/* JOIN */}
+                  <Typo variant="h2">Приєднатися</Typo>
 
-                  <View className="gap-2">
-                    <Typo variant="label" className="uppercase text-muted">
-                      Код запрошення
-                    </Typo>
-                    <TextInput
-                      value={inviteCode}
-                      onChangeText={setInviteCode}
-                      placeholder="ABC123"
-                      placeholderTextColor={colors.light}
-                      autoCapitalize="characters"
-                      className="rounded-2xl border border-border bg-background px-4 py-3 text-text"
-                      style={{ fontFamily: 'Nunito-Regular', fontSize: 15 }}
-                    />
-                  </View>
+                  <Input
+                    label="Код запрошення"
+                    value={inviteCode}
+                    onChangeText={setInviteCode}
+                    placeholder="Введи код"
+                    autoCapitalize="characters"
+                    icon={(color) => (
+                      <Feather name="key" size={18} color={color} />
+                    )}
+                    error={
+                      inviteCode.length > 0 && inviteCode.length < 6
+                        ? "Код занадто короткий"
+                        : undefined
+                    }
+                  />
 
-                  <Button onPress={handleJoinFamily} loading={loading} disabled={!profileReady}>
-                    <Typo variant="h3" className="text-white">
-                      Приєднатися до сімʼї
-                    </Typo>
-                  </Button>
+                  {/* <Button
+                    onPress={handleJoinFamily}
+                    loading={joinFamily.isPending}
+                    disabled={!inviteCode.trim()}
+                  >
+                    <Typo className="text-white">Приєднатися</Typo>
+                  </Button> */}
                 </>
               )}
             </View>
 
-            {profileReady && !activeProfile && (
-              <View className="rounded-2xl border border-warning bg-warning-bg p-4">
-                <Typo variant="h3">Профіль ще не створено</Typo>
-                <Typo className="mt-1 text-muted">
-                  Створення сімʼї стане доступним після появи запису в profiles.
-                </Typo>
-              </View>
-            )}
-
-            <Pressable
-              onPress={signOut}
-              disabled={loading}
-              className="self-center px-4 py-2"
-            >
-              {loading ? (
-                <ActivityIndicator color={colors.primary} />
-              ) : (
-                <Typo variant="h3" className="text-muted">
-                  Вийти з акаунта
-                </Typo>
-              )}
+            {/* SIGN OUT */}
+            <Pressable onPress={signOut} className="self-center">
+              <Typo className="text-muted">Вийти</Typo>
             </Pressable>
+
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -369,24 +231,16 @@ export function FamilySetupScreen() {
   );
 }
 
-function ModeButton({
-  active,
-  label,
-  onPress,
-}: {
-  active: boolean;
-  label: string;
-  onPress: () => void;
-}) {
+function ModeButton({ active, label, onPress }: any) {
   return (
     <Pressable
       onPress={onPress}
       className={cn(
-        'flex-1 items-center rounded-full px-4 py-3',
-        active ? 'bg-primary' : 'bg-transparent'
+        "flex-1 items-center rounded-full py-3",
+        active ? "bg-primary" : "bg-transparent"
       )}
     >
-      <Typo variant="h3" className={active ? 'text-white' : 'text-muted'}>
+      <Typo className={active ? "text-white" : "text-muted"}>
         {label}
       </Typo>
     </Pressable>

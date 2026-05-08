@@ -1,5 +1,5 @@
 import { supabase } from '@/src/lib/supabase';
-import { getAuthError } from '@/src/utils/error';
+import { getAuthError } from '@/src/utils/auth-error';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';

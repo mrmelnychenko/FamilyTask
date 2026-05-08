@@ -18,7 +18,6 @@ export function RegisterScreen() {
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
-
   async function handleRegister() {
     try {
       if (!name.trim()) {
@@ -52,7 +51,6 @@ export function RegisterScreen() {
           },
         },
       });
-
       if (error) {
         Alert.alert('Помилка реєстрації', error.message);
         return;

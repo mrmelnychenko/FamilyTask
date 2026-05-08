@@ -1,37 +1,39 @@
 import { Redirect, Stack, usePathname } from 'expo-router';
-import { ActivityIndicator, View } from 'react-native';
 import { useAuth } from '@/src/hooks/useAuth';
+import { useCurrentFamily } from '@/src/hooks/queries/useFamily';
+import { LoadingScreen } from '@/src/components/ui/LoadingScreen';
 
 export default function ProtectedLayout() {
-  const { session, loading, profile, profileLoading } = useAuth();
-  const pathname = usePathname();
-  const isFamilySetup = pathname === '/family-setup';
+  const { user, loading } = useAuth();
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color="#A855F7" />
-      </View>
-    );
+  const { data: familyMember, isLoading } =
+    useCurrentFamily(user?.id);
+
+  const pathname = usePathname();
+  const isFamilySetup = pathname === "/family-setup";
+
+  const isNoFamily = familyMember === null;
+  const isHasFamily = !!familyMember;
+
+  const isReady = !loading && !isLoading;
+
+  // 1. auth loading
+  if (!isReady) {
+    return <LoadingScreen />;
   }
 
-  if (!session) {
+  // 2. no auth
+  if (!user) {
     return <Redirect href="/login" />;
   }
 
-  if (profileLoading && !isFamilySetup) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color="#A855F7" />
-      </View>
-    );
-  }
-
-  if (!profile?.family_id && !isFamilySetup) {
+  // 3. no family → setup
+  if (isNoFamily && !isFamilySetup) {
     return <Redirect href="/family-setup" />;
   }
 
-  if (profile?.family_id && isFamilySetup) {
+  // 4. has family → prevent setup screen
+  if (isHasFamily && isFamilySetup) {
     return <Redirect href="/home" />;
   }
 

@@ -1,9 +1,54 @@
 import { useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { Stack } from 'expo-router';
+import { Redirect, Stack, useSegments } from 'expo-router';
 import '../globals.css';
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/src/lib/queryClient";
+import { useAuth } from '@/src/hooks/useAuth';
 import { AuthProvider } from '@/src/providers/AuthProvider';
+import "@/src/lib/querySetup";
+import { ActivityIndicator, View } from 'react-native';
+
+SplashScreen.preventAutoHideAsync();
+
+function RootLayoutNav() {
+  const { user, loading } = useAuth();
+  const segments = useSegments();
+
+  if (loading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
+  const inAuthGroup = segments[0] === '(auth)';
+  const inProtectedGroup = segments[0] === '(protected)';
+
+  if (!user && inProtectedGroup) {
+    return <Redirect href="/login" />;
+  }
+
+  if (user && inAuthGroup) {
+    return <Redirect href="/home" />;
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(protected)" />
+    </Stack>
+  );
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -23,12 +68,10 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(protected)" />
-      </Stack>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
