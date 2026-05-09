@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { createInvite } from "./invite-service";
 
 export async function createFamilyService({
   name,
@@ -18,9 +19,16 @@ export async function createFamilyService({
   if (error || !family) {
     throw new Error(error?.message);
   }
-console.log(error, '1')
-console.log(family, '2')
-  return family;
+   
+  const invite = await createInvite({
+    userId,
+    familyId: family.id,
+  });
+
+  return {
+    family,
+    inviteCode: invite.invite_code,
+  };
 }
 
 // type Invite = {
