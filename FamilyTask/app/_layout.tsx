@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
-import { Redirect, Stack, useSegments } from 'expo-router';
+import { Stack } from 'expo-router';
 import '../globals.css';
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/src/lib/queryClient";
@@ -13,8 +13,7 @@ import { ActivityIndicator, View } from 'react-native';
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
-  const { user, loading } = useAuth();
-  const segments = useSegments();
+  const { loading } = useAuth();
 
   if (loading) {
     return (
@@ -29,24 +28,8 @@ function RootLayoutNav() {
       </View>
     );
   }
-
-  const inAuthGroup = segments[0] === '(auth)';
-  const inProtectedGroup = segments[0] === '(protected)';
-
-  if (!user && inProtectedGroup) {
-    return <Redirect href="/login" />;
-  }
-
-  if (user && inAuthGroup) {
-    return <Redirect href="/home" />;
-  }
-
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(public)/index" />
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(protected)" />
-    </Stack>
+    <Stack screenOptions={{ headerShown: false }} />
   );
 }
 

@@ -52,7 +52,7 @@ export function RegisterForm() {
           return;
         }
   
-        router.replace("/family-setup");
+        router.replace("/(protected)/(family)");
   
       } catch {
         setGeneralError("Server error. Please try again later");
@@ -138,7 +138,7 @@ export function RegisterForm() {
           </Typo>
         </Button>
   
-        <Divider />
+        <Divider text="або продовжити через"/>
   
         {/* GOOGLE */}
         <Button

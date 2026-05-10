@@ -1,9 +1,19 @@
+import { LoadingScreen } from '@/src/components/ui/LoadingScreen';
+import { useAuth } from '@/src/hooks/useAuth';
 import { colors } from '@/src/utils/colors';
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AuthLayout() {
+  const { user, loading } = useAuth();
+
+  if (loading) return <LoadingScreen />;
+
+  if (user) {
+    return <Redirect href="/home" />;
+  }
+
   return (
     <SafeAreaView className="flex-1">
       <View className="flex-1">
@@ -19,10 +29,7 @@ export default function AuthLayout() {
                 backgroundColor: colors.background,
               },
             }}
-          >
-            <Stack.Screen name="login"/>
-            <Stack.Screen name="register"/>
-          </Stack>
+          />
         </KeyboardAvoidingView>
       </View>
     </SafeAreaView>
