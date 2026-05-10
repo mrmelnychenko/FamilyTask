@@ -55,6 +55,7 @@ Use the following stack:
 - Realtime: Supabase Realtime
 - Push notifications: expo-notifications
 - Navigation: Expo Router / React Navigation depending on existing project structure
+- Server state: TanStack Query
 - State management: Zustand
 - UI library: React Native Paper
 - Icons: @expo/vector-icons
@@ -67,6 +68,7 @@ Important:
 - Do not create `.js` files.
 - Use `async/await`, not `.then()`.
 - Use functional components and React hooks.
+- Use TanStack Query for Supabase/database requests and mutations.
 - Add loading, error, and empty states where appropriate.
 
 ---
@@ -100,24 +102,37 @@ Current focus:
 - improve registration
 - improve login
 - improve onboarding after registration
-- create profile after registration
 - redirect user depending on state
 - prepare family creation and joining flow
+
+Important current architecture:
+
+- TanStack Query is already installed and configured.
+- `app/_layout.tsx` wraps the app with `QueryClientProvider`.
+- `AuthProvider` stores the current Supabase user/session state.
+- `RootLayoutNav` performs top-level auth checks and redirects between public/auth/protected routes.
+- `app/(protected)/_layout.tsx` performs protected checks, including family access redirects.
+- User profile creation is handled automatically by the backend/Supabase flow after registration. Do not manually create duplicate profiles in frontend code unless the backend behavior changes and the owner asks for it.
+- Do not replace this auth/provider/redirect structure.
 
 Expected auth/onboarding flow:
 
 1. User opens the app.
-2. App checks Supabase session.
+2. `AuthProvider` checks Supabase session.
 3. If there is no session:
    - show welcome/login/register flow.
 4. If session exists:
-   - check if profile exists.
-5. If profile does not exist:
-   - create profile or redirect to profile setup.
-6. If profile exists but user has no family:
+   - use TanStack Query hooks to load profile/family state when needed.
+5. If user has no family:
    - redirect to create/join family screen.
-7. If user has family:
+6. If user has family:
    - redirect to main home screen.
+
+Redirect ownership:
+
+- `RootLayoutNav` should keep the main auth redirects.
+- `app/(protected)/_layout.tsx` should keep protected/family redirects.
+- Screens should not duplicate layout redirect logic unless there is a very specific reason.
 
 ---
 
@@ -138,6 +153,7 @@ src/
   types/
   constants/
   store/
+```
 
 Important paths:
 
@@ -152,9 +168,20 @@ src/store/
 
 Supabase client must always be imported from:
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/src/lib/supabase';
 
 Do not create a second Supabase client in screens or components.
+
+Actual current structure notes:
+
+- Routes live in `app/`.
+- Screens live in `src/screens/`.
+- Reusable UI components live in `src/components/ui/`.
+- Auth context lives in `src/providers/AuthProvider.tsx`.
+- TanStack Query client/setup lives in `src/lib/queryClient.ts` and `src/lib/querySetup.ts`.
+- Query hooks live in `src/hooks/queries/`.
+- Database/service functions live in `src/services/`.
+- Theme colors live in `src/utils/colors.ts` and Tailwind/NativeWind config.
 
 Routing Rules
 
@@ -167,6 +194,7 @@ do not replace the routing system with a classic App.tsx navigator unless asked
 use router.push, router.replace, or <Redirect /> where appropriate
 keep route structure clean
 do not create duplicate screens with the same purpose
+do not replace `RootLayoutNav`, `AuthProvider`, or the protected layout redirect flow unless explicitly requested
 
 If React Navigation is already used in the existing code, follow the existing pattern and do not mix navigation styles unnecessarily.
 
@@ -194,12 +222,16 @@ Rules:
 
 Do not hardcode Supabase keys inside components.
 Use only the existing Supabase client.
-Put reusable database logic into helper files or hooks when needed.
+Put reusable database logic into service files and access it from TanStack Query hooks.
+Use `useQuery` for reads and `useMutation` for create/update/delete actions.
+After mutations, invalidate or update the relevant query keys.
+Do not make direct Supabase database requests inside screens when an existing service/query hook should be used.
 Use try/catch for Supabase calls.
 Show clear Ukrainian error messages to the user.
 Keep database field names consistent with the schema.
 Do not duplicate XP or task completion logic.
 Do not create profiles/families/tasks with incomplete required data.
+Do not manually insert a profile during registration if the backend already creates it automatically.
 Database Schema
 
 Expected database structure:
@@ -227,18 +259,13 @@ CREATE TABLE profiles (
 CREATE TABLE tasks (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   family_id     UUID REFERENCES families(id),
-  creator_id    UUID REFERENCES profiles(id),
-  assignee_id   UUID REFERENCES profiles(id),
+  created_by    UUID REFERENCES profiles(id),
+  assigned_to   UUID REFERENCES profiles(id),
   title         TEXT NOT NULL,
   description   TEXT,
-  emoji         TEXT DEFAULT '✅',
-  due_date      DATE,
-  due_time      TIME,
-  priority      TEXT CHECK (priority IN ('low','medium','high')) DEFAULT 'medium',
-  status        TEXT CHECK (status IN ('todo','done')) DEFAULT 'todo',
-  points_reward INTEGER DEFAULT 10,
-  recurring     TEXT CHECK (recurring IN ('none','daily','weekly','monthly')) DEFAULT 'none',
-  completed_at  TIMESTAMPTZ,
+  deadline      TIMESTAMPTZ,
+  status        TEXT,
+  xp_reward     INTEGER,
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -260,6 +287,17 @@ CREATE TABLE achievements (
 
 If the actual database differs from this schema, first explain the difference before making changes.
 
+Current schema notes from the existing code:
+
+- `families` currently uses `created_by` in frontend service code.
+- Family membership is checked through a `family_members` table.
+- Invite creation uses an `invites` table with `family_id`, `invite_code`, `created_by`, `status`, and role/email fields.
+- Profile creation is expected to happen automatically after auth registration.
+- `tasks` currently uses `created_by`, `assigned_to`, `deadline`, and `xp_reward`.
+- `tasks` does not currently expose `creator_id`, `assignee_id`, `due_date`, `due_time`, `priority`, `points_reward`, `recurring`, or `completed_at` in the Supabase REST schema.
+- Do not send `tasks.status` from the frontend on create unless the real allowed values are verified first. Let the database default handle initial status.
+- Before adding or changing database fields, inspect the current Supabase schema or existing service code and explain any mismatch.
+
 Design System
 
 Use a bright gamified style.
@@ -277,6 +315,7 @@ XP and rewards should feel satisfying
 avoid boring corporate UI
 
 Use colors from the project constants when available.
+In the current project, prefer `colors` from `@/src/utils/colors` and NativeWind theme classes.
 
 Expected color palette:
 
@@ -312,7 +351,7 @@ export const COLORS = {
 
 Rules:
 
-Prefer using COLORS instead of hardcoded colors.
+Prefer using the existing color tokens instead of hardcoded colors.
 Buttons should be rounded and visually clear.
 Cards should have rounded corners.
 Use readable spacing.
@@ -394,8 +433,17 @@ Expected reusable components may include:
 Button
 Typo
 Input
+Box
+LoadingScreen
 Card
 TaskCard
+
+Current UI rule:
+
+- For buttons, text, inputs, and loading UI, use the custom components from `src/components/ui/`.
+- Prefer `Button`, `Typo`, `Input`, `Box`, and `LoadingScreen` over raw `Pressable`, `Text`, `TextInput`, or `ActivityIndicator` in new feature code.
+- Use NativeWind `className` styling when it matches the existing component style.
+- Use `colors` from `@/src/utils/colors` when inline styles are needed.
 
 Before creating a new component:
 
@@ -543,11 +591,15 @@ Current likely priority:
 
 Clean registration flow
 Clean login flow
-Create profile after registration
 Redirect user after login/register
 Add create family screen
 Add join family by invite code
 Prepare home screen after onboarding
+
+Important:
+
+- Do not add frontend profile creation after registration unless explicitly requested. Registration should rely on the existing backend automatic profile creation.
+- Keep all auth and family state reads aligned with TanStack Query and existing providers/layouts.
 Code Style Rules
 
 Use:
@@ -569,13 +621,13 @@ large unreadable components
 unnecessary libraries
 changing many unrelated files
 breaking current navigation
-hardcoded colors when COLORS exists
+hardcoded colors when `colors` or NativeWind theme classes exist
 Import Rules
 
 Prefer alias imports if the project supports them:
 
-import { supabase } from '@/lib/supabase';
-import { COLORS } from '@/constants/colors';
+import { supabase } from '@/src/lib/supabase';
+import { colors } from '@/src/utils/colors';
 
 Before using alias imports, check that aliases are configured correctly in:
 
@@ -593,13 +645,13 @@ Do not mix alias imports and long relative imports without a reason.
 
 Preferred:
 
-import { supabase } from '@/lib/supabase';
-import { COLORS } from '@/constants/colors';
+import { supabase } from '@/src/lib/supabase';
+import { colors } from '@/src/utils/colors';
 
 Avoid when alias works:
 
 import { supabase } from '../../src/lib/supabase';
-import { COLORS } from '../../../src/constants/colors';
+import { colors } from '../../../src/utils/colors';
 How to Respond When Implementing
 
 When asked to implement something, respond in this structure:
@@ -701,6 +753,15 @@ Do not delete files unless clearly required.
 Do not rename important files unless requested.
 
 Do not change package versions unless the task requires it.
+
+Branch workflow:
+
+- Do not push directly to `master`.
+- Before starting a change that will be shared, create a separate branch from the latest `master`.
+- Use a clear branch name, for example `codex/update-agents-instructions` or the project task format like `KAN-13_short-description`.
+- Commit only related files.
+- Push the feature branch and open a pull request into `master`.
+- If the owner asks to publish changes, explain the branch, commit, push, and PR steps before doing them.
 
 If adding a dependency:
 
