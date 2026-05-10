@@ -43,7 +43,7 @@ function RootLayoutNav() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(public)" />
+      <Stack.Screen name="(public)/index" />
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(protected)" />
     </Stack>
