@@ -182,6 +182,8 @@ Actual current structure notes:
 - Query hooks live in `src/hooks/queries/`.
 - Database/service functions live in `src/services/`.
 - Theme colors live in `src/utils/colors.ts` and Tailwind/NativeWind config.
+- Family screens currently live in `src/screens/family/`.
+- Family routes currently live in `app/(protected)/(family)/`.
 
 Routing Rules
 
@@ -226,6 +228,9 @@ Put reusable database logic into service files and access it from TanStack Query
 Use `useQuery` for reads and `useMutation` for create/update/delete actions.
 After mutations, invalidate or update the relevant query keys.
 Do not make direct Supabase database requests inside screens when an existing service/query hook should be used.
+Prefer one structured Supabase query with nested selects/relations over multiple sequential queries when the schema relationship supports it.
+For family members, reuse the existing `getFamilyMembers` pattern from `src/services/family-service.ts` instead of manually querying `family_members`, mapping ids, then querying `profiles` with `.in(...)`.
+Avoid client-side join code unless there is no relationship available in Supabase.
 Use try/catch for Supabase calls.
 Show clear Ukrainian error messages to the user.
 Keep database field names consistent with the schema.
@@ -444,6 +449,9 @@ Current UI rule:
 - Prefer `Button`, `Typo`, `Input`, `Box`, and `LoadingScreen` over raw `Pressable`, `Text`, `TextInput`, or `ActivityIndicator` in new feature code.
 - Use NativeWind `className` styling when it matches the existing component style.
 - Use `colors` from `@/src/utils/colors` when inline styles are needed.
+- Create reusable feature components when a screen grows beyond a simple form or repeated UI appears.
+- For task UI, prefer small components such as task form fields, emoji picker, priority selector, assignee selector, and XP summary instead of putting everything inside one screen file.
+- Keep screens focused on data loading, submit handlers, and composition. Move reusable visual blocks to `src/components/`.
 
 Before creating a new component:
 
@@ -462,11 +470,14 @@ safe fallback
 
 Use Ukrainian messages for users.
 
-Examples:
+For forms:
 
-Alert.alert('Помилка', 'Не вдалося увійти. Спробуйте ще раз.');
-Alert.alert('Помилка', 'Не вдалося створити сімʼю.');
-Alert.alert('Успішно', 'Задачу створено.');
+- Use `react-hook-form` with `Controller`.
+- Use Zod schemas with `zodResolver` when validation is needed.
+- Show field validation through the custom `Input` `error` prop.
+- Show submit/server errors as inline UI using `Typo`/`View`, not `Alert.alert`.
+- Avoid `Alert.alert` for normal form validation or expected API errors.
+- `Alert.alert` can be used only for rare blocking system-level messages or explicit confirmation dialogs.
 
 Do not show raw technical errors directly to normal users unless useful during development.
 
@@ -608,6 +619,8 @@ TypeScript
 functional components
 React hooks
 async/await
+react-hook-form for non-trivial forms
+Zod schemas for form validation
 clear readable variable names
 small helper functions
 existing aliases if configured
@@ -622,6 +635,17 @@ unnecessary libraries
 changing many unrelated files
 breaking current navigation
 hardcoded colors when `colors` or NativeWind theme classes exist
+large screen components with all form sections inline
+manual `useState` form handling for create/edit forms when `react-hook-form` fits
+normal validation or API errors shown with `Alert.alert`
+
+Component size and structure:
+
+- If a screen grows past roughly 200 lines, look for natural components to extract before adding more logic.
+- Prefer feature components that can be reused in future screens.
+- Keep form schemas in `src/schemas/`.
+- Keep submit/database logic in services and TanStack Query hooks, not in presentational components.
+- For create/edit flows, make the screen compose a form component plus small selectors/cards instead of owning every input directly.
 Import Rules
 
 Prefer alias imports if the project supports them:
@@ -704,6 +728,19 @@ For task-related changes, test:
 4. Task has due date/time
 5. Task can be completed
 6. XP is added only once
+
+Task Feature Implementation Rules
+
+When working on task creation or editing:
+
+- Use `react-hook-form` with a Zod schema.
+- Do not validate task form fields with manual `useState` checks and `Alert.alert`.
+- Show validation errors directly near inputs through the custom `Input` component.
+- Show create/update failures as inline error blocks.
+- Keep `CreateTaskScreen` small. Extract reusable pieces such as `TaskForm`, `EmojiPicker`, `PrioritySelector`, `AssigneeSelector`, and `TaskXpSummary` when needed.
+- Reuse existing family/member query patterns. Do not manually join `family_members` and `profiles` in frontend code when Supabase nested select can return the related profile.
+- Keep the final insert payload aligned with the real `tasks` columns: `family_id`, `created_by`, `assigned_to`, `title`, `description`, `deadline`, `xp_reward`.
+- Do not send unsupported task fields such as `assignee_id`, `creator_id`, `due_date`, `due_time`, `points_reward`, or `priority` unless the real database schema is updated first.
 Preferred Task Size
 
 Prefer small tasks like:

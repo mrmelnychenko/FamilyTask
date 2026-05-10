@@ -128,7 +128,7 @@ export function LoginForm() {
         </Typo>
       </Button>
 
-      <Divider />
+      <Divider text="або продовжити через" />
 
       {/* GOOGLE */}
       <Button

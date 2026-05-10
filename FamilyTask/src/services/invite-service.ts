@@ -25,3 +25,20 @@ export async function createInvite({
 
   return data;
 }
+
+export async function getActiveFamilyInvite(
+  familyId: string
+): Promise<IInvite | null> {
+  const { data, error } = await supabase
+    .from("invites")
+    .select("*")
+    .eq("family_id", familyId)
+    .eq("status", "pending")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data;
+}

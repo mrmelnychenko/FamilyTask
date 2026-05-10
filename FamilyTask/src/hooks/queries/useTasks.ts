@@ -1,14 +1,14 @@
 import {
   createTaskService,
-  getTaskMembers,
+  getFamilyTasks,
 } from "@/src/services/task-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function useTaskMembers(familyId?: string | null) {
+export function useFamilyTasks(familyId?: string | null) {
   return useQuery({
-    queryKey: ["task-members", familyId],
+    queryKey: ["tasks", familyId],
     enabled: !!familyId,
-    queryFn: () => getTaskMembers(familyId!),
+    queryFn: () => getFamilyTasks(familyId!),
   });
 }
 

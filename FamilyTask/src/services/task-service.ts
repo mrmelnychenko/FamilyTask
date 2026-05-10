@@ -1,11 +1,17 @@
 import { supabase } from "@/src/lib/supabase";
+import type { TaskPriority } from "@/src/schemas/task.schema";
 
-export type TaskMember = {
+export type FamilyTask = {
   id: string;
-  name: string | null;
-  email: string | null;
-  avatar_emoji: string | null;
   family_id: string;
+  created_by: string | null;
+  assigned_to: string | null;
+  title: string;
+  description: string | null;
+  deadline: string | null;
+  status: string | null;
+  xp_reward: number | null;
+  created_at: string;
 };
 
 export type CreateTaskParams = {
@@ -14,55 +20,26 @@ export type CreateTaskParams = {
   assigneeId: string;
   title: string;
   description?: string | null;
-  emoji: string;
   dueDate?: string | null;
   dueTime?: string | null;
-  priority: "low" | "medium" | "high";
+  priority: TaskPriority;
 };
 
-type FamilyMemberRow = {
-  user_id: string;
-};
+export async function getFamilyTasks(familyId: string): Promise<FamilyTask[]> {
+  const { data, error } = await supabase
+    .from("tasks")
+    .select(
+      "id, family_id, created_by, assigned_to, title, description, deadline, status, xp_reward, created_at"
+    )
+    .eq("family_id", familyId)
+    .order("deadline", { ascending: true, nullsFirst: false })
+    .order("created_at", { ascending: false });
 
-type ProfileRow = {
-  id: string;
-  name: string | null;
-  email: string | null;
-  avatar_emoji: string | null;
-};
-
-export async function getTaskMembers(familyId: string): Promise<TaskMember[]> {
-  const { data: familyMembers, error: familyMembersError } = await supabase
-    .from("family_members")
-    .select("user_id")
-    .eq("family_id", familyId);
-
-  if (familyMembersError) {
-    throw familyMembersError;
+  if (error) {
+    throw error;
   }
 
-  const userIds =
-    (familyMembers as FamilyMemberRow[] | null)?.map((member) => member.user_id) ??
-    [];
-
-  if (userIds.length === 0) {
-    return [];
-  }
-
-  const { data: profiles, error: profilesError } = await supabase
-    .from("profiles")
-    .select("id, name, email, avatar_emoji")
-    .in("id", userIds)
-    .order("name", { ascending: true });
-
-  if (profilesError) {
-    throw profilesError;
-  }
-
-  return ((profiles as ProfileRow[] | null) ?? []).map((profile) => ({
-    ...profile,
-    family_id: familyId,
-  }));
+  return (data ?? []) as FamilyTask[];
 }
 
 export async function createTaskService(params: CreateTaskParams) {

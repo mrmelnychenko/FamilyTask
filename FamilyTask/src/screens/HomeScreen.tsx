@@ -1,120 +1,171 @@
-import { supabase } from '@/src/lib/supabase';
-import { Href, Redirect, router } from 'expo-router';
-import { useEffect } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useAuth } from '../hooks/useAuth';
-import { useCurrentFamily, useFamilyMembers } from '../hooks/queries/useFamily';
-import { LoadingScreen } from '../components/ui/LoadingScreen';
+import { Href, Redirect, router } from "expo-router";
+import { ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-type HomeUser = {
-  email?: string;
-};
+import { FamilyHeroCard } from "@/src/components/home/FamilyHeroCard";
+import { HomeBottomNav } from "@/src/components/home/HomeBottomNav";
+import { HomeSectionHeader } from "@/src/components/home/HomeSectionHeader";
+import { HomeTaskList } from "@/src/components/home/HomeTaskList";
+import { WeeklyLeaders } from "@/src/components/home/WeeklyLeaders";
+import { LoadingScreen } from "@/src/components/ui/LoadingScreen";
+import { Typo } from "@/src/components/ui/Typo";
+import { useCurrentFamily, useFamilyMembers } from "@/src/hooks/queries/useFamily";
+import { useFamilyInvite } from "@/src/hooks/queries/useInvite";
+import { useFamilyTasks } from "@/src/hooks/queries/useTasks";
+import { useAuth } from "@/src/hooks/useAuth";
+import type {
+  FamilyMember,
+  FamilyMemberProfile,
+} from "@/src/services/family-service";
+import type { FamilyTask } from "@/src/services/task-service";
+
+function getFamilyName(familyMember: unknown) {
+  const families = (familyMember as { families?: { name?: string } | { name?: string }[] } | null)
+    ?.families;
+
+  if (Array.isArray(families)) {
+    return families[0]?.name ?? null;
+  }
+
+  return families?.name ?? null;
+}
+
+function getProfile(member: FamilyMember): FamilyMemberProfile | null {
+  if (Array.isArray(member.profiles)) {
+    return member.profiles[0] ?? null;
+  }
+
+  return member.profiles;
+}
+
+function getCurrentProfile(members: FamilyMember[], userId?: string) {
+  return members.map(getProfile).find((profile) => profile?.id === userId) ?? null;
+}
+
+function getRank(members: FamilyMember[], userId?: string) {
+  const leaders = members
+    .map(getProfile)
+    .filter((profile): profile is FamilyMemberProfile => !!profile)
+    .sort((a, b) => (b.xp ?? 0) - (a.xp ?? 0));
+
+  const index = leaders.findIndex((profile) => profile.id === userId);
+  return index >= 0 ? index + 1 : leaders.length + 1;
+}
+
+function isToday(deadline: string | null) {
+  if (!deadline) return true;
+
+  const date = new Date(deadline);
+  if (Number.isNaN(date.getTime())) return false;
+
+  const today = new Date();
+
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
+}
+
+function isDone(task: FamilyTask) {
+  return task.status === "done" || task.status === "completed";
+}
 
 export function HomeScreen() {
   const { user } = useAuth();
-  const { data: familyMember, isLoading } = useCurrentFamily(user?.id);
-const { data: members } = useFamilyMembers(familyMember?.family_id);
-console.log(members)
-  useEffect(() => {
-    loadUser();
-  }, []);
+  const {
+    data: familyMember,
+    isLoading: isFamilyLoading,
+  } = useCurrentFamily(user?.id);
 
-  async function loadUser() {
-    const { data, error } = await supabase.auth.getUser();
-    if (error) {
-      Alert.alert('Помилка', 'Не вдалося завантажити користувача.');
-    }
+  const familyId = familyMember?.family_id ?? null;
+  const {
+    data: members = [],
+    isLoading: areMembersLoading,
+  } = useFamilyMembers(familyId ?? undefined);
+  const {
+    data: tasks = [],
+    isLoading: areTasksLoading,
+    isError: isTasksError,
+  } = useFamilyTasks(familyId);
+  const { data: invite } = useFamilyInvite(familyId);
+
+  const familyName = getFamilyName(familyMember) || "Сімʼя";
+  const todayTasks = tasks.filter((task) => isToday(task.deadline));
+  const doneToday = todayTasks.filter(isDone).length;
+  const currentProfile = getCurrentProfile(members, user?.id);
+  const rank = getRank(members, user?.id);
+  const loading = isFamilyLoading || areMembersLoading || areTasksLoading;
+
+  function openCreateTask() {
+    router.push("/(protected)/create-task" as Href);
   }
 
-  async function handleLogout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      Alert.alert('Помилка', 'Не вдалося вийти з акаунта.');
-    }
+  if (isFamilyLoading) {
+    return <LoadingScreen />;
   }
 
-  if (isLoading) return <LoadingScreen />;
-
-  if (!familyMember?.family_id) {
+  if (!familyId) {
     return <Redirect href={"/(protected)/(family)" as Href} />;
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🏠 Home</Text>
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="flex-1">
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 112 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <FamilyHeroCard
+            familyName={familyName}
+            inviteCode={invite?.invite_code ?? null}
+            memberCount={members.length}
+            profile={currentProfile}
+            rank={rank}
+          />
 
-      <Text style={styles.subtitle}>
-        Welcome 👋
-      </Text>
+          <View className="gap-5 px-5 pt-5">
+            <View className="gap-3">
+              <HomeSectionHeader
+                title="Задачі на сьогодні"
+                icon="target"
+                count={todayTasks.length}
+                onAdd={openCreateTask}
+              />
 
-      <View style={styles.card}>
-        <Text style={styles.label}>Email користувача:</Text>
-        <Text style={styles.value}>
-          {user?.email || 'Завантаження...'}
-        </Text>
+              {loading ? (
+                <View className="rounded-3xl bg-white p-6 border border-border">
+                  <LoadingScreen />
+                </View>
+              ) : (
+                <HomeTaskList
+                  tasks={todayTasks}
+                  members={members}
+                  isError={isTasksError}
+                />
+              )}
+            </View>
+
+            <WeeklyLeaders members={members} />
+
+            <View className="rounded-3xl bg-white p-5 border border-border">
+              <Typo variant="h3">Сімейний прогрес</Typo>
+              <Typo className="mt-1 text-muted">
+                Виконано сьогодні: {doneToday}/{todayTasks.length}
+              </Typo>
+            </View>
+          </View>
+        </ScrollView>
+
+        <HomeBottomNav
+          items={[
+            { label: "Головна", icon: "home", active: true },
+            { label: "Задачі", icon: "check-square", onPress: openCreateTask },
+            { label: "Досягнення", icon: "award" },
+            { label: "Профіль", icon: "user" },
+          ]}
+        />
       </View>
-
-      <TouchableOpacity style={styles.createButton} onPress={() => router.push('/(protected)/create-task' as Href)}>
-        <Text style={styles.buttonText}>Створити задачу</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Вийти</Text>
-      </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '800',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  subtitle: {
-    textAlign: 'center',
-    color: '#6B7280',
-    marginBottom: 30,
-  },
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginBottom: 20,
-  },
-  label: {
-    color: '#6B7280',
-    fontSize: 14,
-  },
-  value: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 5,
-  },
-  button: {
-    backgroundColor: '#EF4444',
-    padding: 14,
-    borderRadius: 14,
-    alignItems: 'center',
-  },
-  createButton: {
-    backgroundColor: '#A855F7',
-    padding: 14,
-    borderRadius: 14,
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
-})

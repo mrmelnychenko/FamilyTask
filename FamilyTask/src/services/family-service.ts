@@ -1,6 +1,22 @@
 import { supabase } from "../lib/supabase";
 import { createInvite } from "./invite-service";
 
+export type FamilyMemberProfile = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  avatar_emoji: string | null;
+  xp: number | null;
+  streak: number | null;
+};
+
+export type FamilyMember = {
+  id: string;
+  role: string | null;
+  created_at: string;
+  profiles: FamilyMemberProfile | FamilyMemberProfile[] | null;
+};
+
 export async function createFamilyService({
   name,
   userId,
@@ -77,7 +93,9 @@ export async function getCurrentFamily(userId: string) {
 }
 
 
-export async function getFamilyMembers(familyId: string) {
+export async function getFamilyMembers(
+  familyId: string
+): Promise<FamilyMember[]> {
   const { data, error } = await supabase
     .from("family_members")
     .select(`
@@ -97,5 +115,5 @@ export async function getFamilyMembers(familyId: string) {
 
   if (error) throw new Error(error.message);
 
-  return data;
+  return (data ?? []) as unknown as FamilyMember[];
 }
