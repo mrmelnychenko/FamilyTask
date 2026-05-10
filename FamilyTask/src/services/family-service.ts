@@ -87,6 +87,7 @@ export async function getFamilyMembers(familyId: string) {
       profiles (
         id,
         name,
+        email,
         avatar_emoji,
         xp,
         streak
