@@ -1,37 +1,42 @@
 import { supabase } from '@/src/lib/supabase';
-import { Href, router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { Href, Redirect, router } from 'expo-router';
+import { useEffect } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useAuth } from '../hooks/useAuth';
+import { useCurrentFamily, useFamilyMembers } from '../hooks/queries/useFamily';
+import { LoadingScreen } from '../components/ui/LoadingScreen';
 
 type HomeUser = {
   email?: string;
 };
 
 export function HomeScreen() {
-  const [user, setUser] = useState<HomeUser | null>(null);
-
+  const { user } = useAuth();
+  const { data: familyMember, isLoading } = useCurrentFamily(user?.id);
+const { data: members } = useFamilyMembers(familyMember?.family_id);
+console.log(members)
   useEffect(() => {
     loadUser();
   }, []);
 
   async function loadUser() {
     const { data, error } = await supabase.auth.getUser();
-
     if (error) {
       Alert.alert('Помилка', 'Не вдалося завантажити користувача.');
-      return;
     }
-
-    setUser(data.user);
   }
 
   async function handleLogout() {
     const { error } = await supabase.auth.signOut();
-
     if (error) {
       Alert.alert('Помилка', 'Не вдалося вийти з акаунта.');
-      return;
     }
+  }
+
+  if (isLoading) return <LoadingScreen />;
+
+  if (!familyMember?.family_id) {
+    return <Redirect href={"/(protected)/(family)" as Href} />;
   }
 
   return (

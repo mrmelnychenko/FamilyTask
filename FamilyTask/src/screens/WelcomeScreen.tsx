@@ -11,6 +11,7 @@ import { cn } from '../utils/cn';
 import { colors } from '../utils/colors';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
+import { useCurrentFamily } from '../hooks/queries/useFamily';
 
 
 export const features = [
@@ -42,12 +43,14 @@ export const features = [
 
 export function WelcomeScreen() {
   const { user, loading } = useAuth();
+  const { data: isLoading } = useCurrentFamily(user?.id);
 
-  if (loading) return null;
+  if (loading || isLoading) return null;
 
   if (user) {
     return <Redirect href="/home" />;
   }
+  
   
   return (
     <SafeAreaView className='flex-1 bg-background'>
