@@ -1,9 +1,7 @@
 import { Href, Redirect, router } from "expo-router";
 import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { FamilyHeroCard } from "@/src/components/home/FamilyHeroCard";
-import { HomeBottomNav } from "@/src/components/home/HomeBottomNav";
 import { HomeSectionHeader } from "@/src/components/home/HomeSectionHeader";
 import { HomeTaskList } from "@/src/components/home/HomeTaskList";
 import { WeeklyLeaders } from "@/src/components/home/WeeklyLeaders";
@@ -110,7 +108,6 @@ export function HomeScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
       <View className="flex-1">
         <ScrollView
           contentContainerStyle={{ paddingBottom: 112 }}
@@ -156,16 +153,6 @@ export function HomeScreen() {
             </View>
           </View>
         </ScrollView>
-
-        <HomeBottomNav
-          items={[
-            { label: "Головна", icon: "home", active: true },
-            { label: "Задачі", icon: "check-square", onPress: openCreateTask },
-            { label: "Досягнення", icon: "award" },
-            { label: "Профіль", icon: "user" },
-          ]}
-        />
       </View>
-    </SafeAreaView>
   );
 }
