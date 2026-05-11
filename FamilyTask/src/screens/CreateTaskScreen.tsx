@@ -2,13 +2,9 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
-  ScrollView,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { LoadingScreen } from "@/src/components/ui/LoadingScreen";
 import { Typo } from "@/src/components/ui/Typo";
@@ -77,52 +73,43 @@ export function CreateTaskScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-      >
-        <ScrollView
-          contentContainerStyle={{ padding: 16, paddingBottom: 32, gap: 18 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+
+    <View>
+      <View className="flex-row items-center gap-3">
+        <Pressable
+          onPress={goBackOrHome}
+          className="h-11 w-11 items-center justify-center rounded-full bg-white border border-border"
         >
-          <View className="flex-row items-center gap-3">
-            <Pressable
-              onPress={goBackOrHome}
-              className="h-11 w-11 items-center justify-center rounded-full bg-white border border-border"
-            >
-              <Feather name="arrow-left" size={20} color={colors.text} />
-            </Pressable>
+          <Feather name="arrow-left" size={20} color={colors.text} />
+        </Pressable>
 
-            <View className="flex-1">
-              <Typo variant="h2">Нова задача</Typo>
-              <Typo className="text-muted">
-                Створіть завдання для сімʼї
-              </Typo>
-            </View>
-          </View>
+        <View className="flex-1">
+          <Typo variant="h2">Нова задача</Typo>
+          <Typo className="text-muted">
+            Створіть завдання для сімʼї
+          </Typo>
+        </View>
+      </View>
 
-          {!familyId ? (
-            <View className="rounded-2xl border border-warning bg-warning-bg p-4">
-              <Typo variant="h3" className="text-text">
-                Сімʼю ще не налаштовано
-              </Typo>
-              <Typo className="mt-1 text-muted">
-                Після створення або приєднання до сімʼї тут можна буде
-                додавати задачі.
-              </Typo>
-            </View>
-          ) : (
-            <TaskForm
-              members={members}
-              loading={createTask.isPending}
-              error={submitError}
-              onSubmit={handleCreateTask}
-            />
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      {!familyId ? (
+        <View className="rounded-2xl border border-warning bg-warning-bg p-4">
+          <Typo variant="h3" className="text-text">
+            Сімʼю ще не налаштовано
+          </Typo>
+          <Typo className="mt-1 text-muted">
+            Після створення або приєднання до сімʼї тут можна буде
+            додавати задачі.
+          </Typo>
+        </View>
+      ) : (
+        <TaskForm
+          members={members}
+          loading={createTask.isPending}
+          error={submitError}
+          onSubmit={handleCreateTask}
+        />
+      )}
+
+    </View>
   );
 }

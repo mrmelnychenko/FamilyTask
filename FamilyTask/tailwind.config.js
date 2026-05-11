@@ -30,6 +30,9 @@ module.exports = {
                 'gold-bg': '#FFFBEB',
                 'pink-bg': '#FDF2F8',
 
+                cyan: "#06B6D4",
+                cyanBg: "#ECFEFF",
+
                 streak: '#F97316',
                 'streak-bg': '#FFF7ED',
 
