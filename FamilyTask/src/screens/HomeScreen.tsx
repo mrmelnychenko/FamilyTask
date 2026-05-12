@@ -2,7 +2,6 @@ import { Href, router } from "expo-router";
 import { ScrollView, View } from "react-native";
 
 import { FamilyHeroCard } from "@/src/components/home/FamilyHeroCard";
-import { HomeSectionHeader } from "@/src/components/home/HomeSectionHeader";
 import { HomeTaskList } from "@/src/components/home/HomeTaskList";
 import { WeeklyLeaders } from "@/src/components/home/WeeklyLeaders";
 import { LoadingScreen } from "@/src/components/ui/LoadingScreen";
@@ -15,7 +14,7 @@ import type {
   FamilyMember,
   FamilyMemberProfile,
 } from "@/src/services/family-service";
-import type { FamilyTask } from "@/src/services/task-service";
+import { ITask } from "../types/task";
 
 
 function getFamilyName(familyMember: unknown) {
@@ -66,8 +65,8 @@ function isToday(deadline: string | null) {
   );
 }
 
-function isDone(task: FamilyTask) {
-  return task.status === "done" || task.status === "completed";
+function isDone(task: ITask) {
+  return task.status === "DONE";
 }
 
 export function HomeScreen() {
@@ -78,35 +77,14 @@ export function HomeScreen() {
   } = useCurrentFamily(user?.id);
 
   const familyId = familyMember?.family_id ?? null;
-  const {
-    data: members = [],
-    isLoading: areMembersLoading,
-  } = useFamilyMembers(familyId ?? undefined);
+
   const {
     data: tasks = [],
     isLoading: areTasksLoading,
     isError: isTasksError,
   } = useFamilyTasks(familyId);
-  const { data: invite } = useFamilyInvite(familyId);
-
-  const familyName = getFamilyName(familyMember) || "Сімʼя";
-  const todayTasks = tasks.filter((task) => isToday(task.deadline));
-  const doneToday = todayTasks.filter(isDone).length;
-  const currentProfile = getCurrentProfile(members, user?.id);
-  const rank = getRank(members, user?.id);
-  const loading = isFamilyLoading || areMembersLoading || areTasksLoading;
-
-  function openCreateTask() {
-    router.push("/(protected)/create-task" as Href);
-  }
-
-  // if (isFamilyLoading) {
-  //   return <LoadingScreen />;
-  // }
-
-  // if (!familyId) {
-  //   return <Redirect href={"/(protected)/(family)" as Href} />;
-  // }
+ 
+console.log(tasks, '55555555555555555555')
 
   return (
       <View className="flex-1">
@@ -118,34 +96,22 @@ export function HomeScreen() {
 
           <View className="gap-5  pt-5">
             <View className="gap-3">
-              <HomeSectionHeader
-                title="Задачі на сьогодні"
-                icon="target"
-                count={todayTasks.length}
-                onAdd={openCreateTask}
-              />
-
-              {loading ? (
-                <View className="rounded-3xl bg-white p-6 border border-border">
-                  <LoadingScreen />
-                </View>
-              ) : (
+            
                 <HomeTaskList
-                  tasks={todayTasks}
-                  members={members}
+                  tasks={tasks}
                   isError={isTasksError}
                 />
-              )}
+              
             </View>
 
-            <WeeklyLeaders members={members} />
+            {/* <WeeklyLeaders members={members} />
 
             <View className="rounded-3xl bg-white p-5 border border-border">
               <Typo variant="h3">Сімейний прогрес</Typo>
               <Typo className="mt-1 text-muted">
                 Виконано сьогодні: {doneToday}/{todayTasks.length}
               </Typo>
-            </View>
+            </View> */}
           </View>
         </ScrollView>
       </View>

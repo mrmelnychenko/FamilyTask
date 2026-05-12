@@ -1,18 +1,7 @@
 import { supabase } from "@/src/lib/supabase";
 import type { TaskPriority } from "@/src/schemas/task.schema";
+import { ITask, ITaskRow } from "../types/task";
 
-export type FamilyTask = {
-  id: string;
-  family_id: string;
-  created_by: string | null;
-  assigned_to: string | null;
-  title: string;
-  description: string | null;
-  deadline: string | null;
-  status: string | null;
-  xp_reward: number | null;
-  created_at: string;
-};
 
 export type CreateTaskParams = {
   familyId: string;
@@ -25,23 +14,38 @@ export type CreateTaskParams = {
   priority: TaskPriority;
 };
 
-export async function getFamilyTasks(familyId: string): Promise<FamilyTask[]> {
+export async function getFamilyTasks(familyId: string): Promise<ITask[]> {
   const { data, error } = await supabase
     .from("tasks")
     .select(
-      "id, family_id, created_by, assigned_to, title, description, deadline, status, xp_reward, created_at"
+      `
+  id,
+  family_id,
+  title,
+  description,
+  deadline,
+  status,
+  xp_reward,
+  created_at,
+
+  assigned_to,
+  created_by,
+
+  assignee:profiles!tasks_assigned_to_fkey(*),
+  creator:profiles!tasks_created_by_fkey(*)
+`
     )
     .eq("family_id", familyId)
     .order("deadline", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
 
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? []) as FamilyTask[];
+  if (error) throw error;
+  return (data || []).map(task => ({
+    ...task,
+    assignee: Array.isArray(task.assignee) ? task.assignee[0] : task.assignee,
+    creator: Array.isArray(task.creator) ? task.creator[0] : task.creator,
+  })) as ITask[];
 }
-
 export async function createTaskService(params: CreateTaskParams) {
   const deadline = params.dueDate
     ? `${params.dueDate}T${params.dueTime ?? "23:59"}:00`
