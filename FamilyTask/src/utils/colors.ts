@@ -1,4 +1,6 @@
 export const colors = {
+  black: "#000000",
+
   primary: "#A855F7",
   primaryDark: "#7C3AED",
   primaryLight: "#EDE9FE",
@@ -14,7 +16,7 @@ export const colors = {
 
   pink: "#EC4899",
   pinkBg: "#FDF2F8",
-  
+
   gold: "#F59E0B",
   goldBg: "#FFFBEB",
 
@@ -28,12 +30,10 @@ export const colors = {
   streakBg: "#FFF7ED",
 
   background: "#E9ECF4",
+  white: "#FFFFFF",
   border: "#E5E7EB",
 
   text: "#111827",
   muted: "#6B7280",
   light: "#9CA3AF",
-
-  white: "#FFFFFF",
-  black: "#000000",
 };

@@ -10,40 +10,45 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                black: '#000000',
-                primary: '#A855F7',
+                black: "#000000",
 
-                'primary-dark': '#7C3AED',
-                'primary-light': '#EDE9FE',
+                primary: "#A855F7",
+                "primary-dark": "#7C3AED",
+                "primary-light": "#EDE9FE",
 
-                success: '#22C55E',
-                'success-bg': '#F0FDF4',
+                success: "#22C55E",
+                "success-bg": "#F0FDF4",
 
-                warning: '#F97316',
-                'warning-bg': '#FFF7ED',
+                warning: "#F97316",
+                "warning-bg": "#FFF7ED",
 
-                danger: '#EF4444',
-                'danger-bg': '#FEF2F2',
+                danger: "#EF4444",
+                "danger-bg": "#FEF2F2",
 
-                pink: '#EC4899',
-                gold: '#F59E0B',
-                'gold-bg': '#FFFBEB',
-                'pink-bg': '#FDF2F8',
+                pink: "#EC4899",
+                "pink-bg": "#FDF2F8",
+
+                gold: "#F59E0B",
+                "gold-bg": "#FFFBEB",
 
                 cyan: "#06B6D4",
-                cyanBg: "#ECFEFF",
+                "cyan-bg": "#ECFEFF",
 
-                streak: '#F97316',
-                'streak-bg': '#FFF7ED',
+                blue: "#3B82F6",
+                "blue-bg": "#EFF6FF",
 
-                background: '#E9ECF4',
-                white: '#FFFFFF',
-                border: '#E5E7EB',
+                streak: "#F97316",
+                "streak-bg": "#FFF7ED",
 
-                text: '#111827',
-                muted: '#6B7280',
-                light: '#9CA3AF',
+                background: "#E9ECF4",
+                white: "#FFFFFF",
+                border: "#E5E7EB",
+
+                text: "#111827",
+                muted: "#6B7280",
+                light: "#9CA3AF",
             },
+
             fontSize: {
                 h1: "32px",
                 h2: "24px",

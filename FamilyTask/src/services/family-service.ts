@@ -68,19 +68,26 @@ export async function joinFamilyService({
   return invite;
 }
 
-export async function getCurrentFamily(userId: string) {
+export type CurrentFamily = {
+  family_id: string;
+  role: string;
+  families: {
+    id: string;
+    name: string;
+  };
+} | null;
+
+export async function getCurrentFamily(userId: string): Promise<CurrentFamily> {
   const { data, error } = await supabase
     .from("family_members")
-    .select(
-      `
+    .select(`
       family_id,
       role,
       families (
         id,
         name
       )
-    `
-    )
+    `)
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -89,7 +96,7 @@ export async function getCurrentFamily(userId: string) {
     return null;
   }
 
-  return data;
+  return data as CurrentFamily;
 }
 
 

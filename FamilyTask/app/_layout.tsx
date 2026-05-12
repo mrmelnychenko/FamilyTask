@@ -9,6 +9,9 @@ import { useAuth } from '@/src/hooks/useAuth';
 import { AuthProvider } from '@/src/providers/AuthProvider';
 import "@/src/lib/querySetup";
 import { ActivityIndicator, View } from 'react-native';
+import Toast from 'react-native-toast-message';
+import { RootSiblingParent } from 'react-native-root-siblings';
+import { toastConfig } from '@/src/components/toast/ToastConfig';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -52,9 +55,12 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <RootLayoutNav />
-      </AuthProvider>
+      <RootSiblingParent>
+        <AuthProvider>
+          <RootLayoutNav />
+          <Toast config={toastConfig}/>
+        </AuthProvider>
+      </RootSiblingParent>
     </QueryClientProvider>
   );
 }

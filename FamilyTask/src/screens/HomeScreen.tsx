@@ -1,4 +1,4 @@
-import { Href, Redirect, router } from "expo-router";
+import { Href, router } from "expo-router";
 import { ScrollView, View } from "react-native";
 
 import { FamilyHeroCard } from "@/src/components/home/FamilyHeroCard";
@@ -16,6 +16,7 @@ import type {
   FamilyMemberProfile,
 } from "@/src/services/family-service";
 import type { FamilyTask } from "@/src/services/task-service";
+
 
 function getFamilyName(familyMember: unknown) {
   const families = (familyMember as { families?: { name?: string } | { name?: string }[] } | null)
@@ -99,29 +100,23 @@ export function HomeScreen() {
     router.push("/(protected)/create-task" as Href);
   }
 
-  if (isFamilyLoading) {
-    return <LoadingScreen />;
-  }
+  // if (isFamilyLoading) {
+  //   return <LoadingScreen />;
+  // }
 
-  if (!familyId) {
-    return <Redirect href={"/(protected)/(family)" as Href} />;
-  }
+  // if (!familyId) {
+  //   return <Redirect href={"/(protected)/(family)" as Href} />;
+  // }
 
   return (
       <View className="flex-1">
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 112 }}
+          contentContainerStyle={{ paddingBottom: 112, paddingHorizontal: 20, paddingTop: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          <FamilyHeroCard
-            familyName={familyName}
-            inviteCode={invite?.invite_code ?? null}
-            memberCount={members.length}
-            profile={currentProfile}
-            rank={rank}
-          />
+         <FamilyHeroCard />
 
-          <View className="gap-5 px-5 pt-5">
+          <View className="gap-5  pt-5">
             <View className="gap-3">
               <HomeSectionHeader
                 title="Задачі на сьогодні"
@@ -156,3 +151,5 @@ export function HomeScreen() {
       </View>
   );
 }
+
+
