@@ -10,7 +10,7 @@ interface IScreenLayout {
 
 export function ScreenLayout({ children, scrollable = true, showBack=false }: IScreenLayout) {
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1" >
         {showBack && <ArrowBack />}
       <KeyboardAvoidingView
         className="flex-1"
@@ -18,7 +18,7 @@ export function ScreenLayout({ children, scrollable = true, showBack=false }: IS
       >
         {scrollable ? (
           <ScrollView
-            contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 32 }}
+            contentContainerStyle={{ flexGrow: 1, padding: 16, paddingBottom: 32}}
             keyboardShouldPersistTaps="handled"
           >
             {children}

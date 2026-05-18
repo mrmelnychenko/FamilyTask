@@ -52,7 +52,7 @@ export async function joinFamilyService({
     .eq("status", "pending")
     .single();
   if (inviteError || !invite) {
-    throw new Error("Сім'ю з таким кодом не знайдено");
+    throw new Error("Not found family");
   }
 
   const { error: memberError } = await supabase.from("family_members").insert({
@@ -80,14 +80,16 @@ export type CurrentFamily = {
 export async function getCurrentFamily(userId: string): Promise<CurrentFamily> {
   const { data, error } = await supabase
     .from("family_members")
-    .select(`
+    .select(
+      `
       family_id,
       role,
       families (
         id,
         name
       )
-    `)
+    `
+    )
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -99,13 +101,13 @@ export async function getCurrentFamily(userId: string): Promise<CurrentFamily> {
   return data as CurrentFamily;
 }
 
-
 export async function getFamilyMembers(
   familyId: string
 ): Promise<FamilyMember[]> {
   const { data, error } = await supabase
     .from("family_members")
-    .select(`
+    .select(
+      `
       id,
       role,
       created_at,
@@ -117,10 +119,24 @@ export async function getFamilyMembers(
         xp,
         streak
       )
-    `)
+    `
+    )
     .eq("family_id", familyId);
 
   if (error) throw new Error(error.message);
 
   return (data ?? []) as unknown as FamilyMember[];
+}
+
+export async function getFamilyLeaderboard(
+  familyId: string,
+  period: "week" | "month" | "all"
+) {
+  const { data, error } = await supabase.rpc("get_family_leaderboard", { 
+    p_family_id: familyId, 
+    p_period: period   
+  });
+  if (error) throw new Error(error.message);
+
+  return data ?? [];
 }

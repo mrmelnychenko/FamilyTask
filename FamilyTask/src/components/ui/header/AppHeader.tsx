@@ -1,37 +1,43 @@
-import { View } from 'react-native';
-import { colors } from '@/src/utils/colors';
-import { Typo } from '../Typo';
-import { Avatar } from '../Avatar';
-import { useAuth } from '@/src/hooks/useAuth';
-import { useProfile } from '@/src/hooks/queries/useProfile';
+import { View, Pressable } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { Avatar } from "../Avatar";
+import { useAuth } from "@/src/hooks/useAuth";
+import { useProfile } from "@/src/hooks/queries/useProfile";
+import { cn } from "@/src/utils/cn";
+import { colors } from "@/src/utils/colors";
 
 export function AppHeader() {
-    const { user } = useAuth();
-    const { data: profile } = useProfile(user?.id);
-    return (
-        <View className="flex-row items-center justify-between px-5 py-3" style={{
-            shadowColor: colors.black,
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.06,
-            shadowRadius: 8,
-            elevation: 4,
-            backgroundColor: '#DDB7FF'
-          }}>
-            {/* LEFT */}
-            <Avatar name={profile?.name}/>
+  const { user } = useAuth();
+  const { data: profile } = useProfile(user?.id);
 
-            {/* RIGHT */}
-            <View className="flex-row items-center gap-3">
-                <View className="flex-row items-center gap-1 bg-orange-50 px-3 py-1 rounded-full">
-                    <Typo variant="label" style={{ color: colors.streak }}>🔥</Typo>
-                    <Typo variant="label" style={{ color: colors.streak }}>{7}</Typo>
-                </View>
+  const hasUnreadNotifications = true; 
 
-                <View className="flex-row items-center gap-1 bg-yellow-50 px-3 py-1 rounded-full">
-                    <Typo variant="label" style={{ color: colors.gold }}>⭐</Typo>
-                    <Typo variant="label" style={{ color: colors.gold }}>{150}xp</Typo>
-                </View>
-            </View>
-        </View>
-    );
+  return (
+    <View 
+      className="flex-row items-center justify-between px-5 py-4 bg-primary  border-b border-black/5"
+    >
+      <Avatar name={profile?.name} />
+
+      <Pressable 
+        className={cn(
+          "w-10 h-10 items-center justify-center rounded-full transition-all active:scale-95",
+          "bg-white/80 border border-white/40 shadow-sm"
+        )}
+        onPress={() => {
+        }}
+      >
+        <Feather 
+          name="bell" 
+          size={20} 
+          color={colors.black}
+        />
+
+        {hasUnreadNotifications && (
+          <View 
+            className="absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full bg-danger border-2 border-white"
+          />
+        )}
+      </Pressable>
+    </View>
+  );
 }

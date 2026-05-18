@@ -1,6 +1,7 @@
 import {
   createFamilyService,
   getCurrentFamily,
+  getFamilyLeaderboard,
   getFamilyMembers,
   joinFamilyService,
 } from "@/src/services/family-service";
@@ -55,3 +56,14 @@ export function useFamilyMembers(familyId?: string) {
     enabled: !!familyId,
   });
 }
+
+export function useFamilyLeaderboard(
+    familyId?: string,
+    period: "week" | "month" | "all" = "week"
+  ) {
+    return useQuery({
+      queryKey: ["leaderboard", familyId],
+      queryFn: () => getFamilyLeaderboard(familyId!, period),
+      enabled: !!familyId,
+    });
+  }

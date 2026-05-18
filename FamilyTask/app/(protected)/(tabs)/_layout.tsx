@@ -4,8 +4,8 @@ import { AppHeader } from "@/src/components/ui/header/AppHeader";
 import { useCurrentFamily } from "@/src/hooks/queries/useFamily";
 import { useProfile } from "@/src/hooks/queries/useProfile";
 import { useAuth } from "@/src/hooks/useAuth";
+import { colors } from "@/src/utils/colors";
 import { Href, Redirect, Tabs} from "expo-router";
-import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TabsLayout() {
@@ -19,22 +19,24 @@ export default function TabsLayout() {
     }
 
     return (
-        <SafeAreaView className="flex-1 bg-background">
-            <View className="flex-1">
+        <SafeAreaView className="flex-1 ">
                 <AppHeader />
                 <Tabs
                     screenOptions={{
                         headerShown: false,
                         tabBarStyle: { display: 'none' },
+                        sceneStyle: {
+                            backgroundColor: colors.primaryLight,
+                          },
                     }}
                 >
                     <Tabs.Screen name="home" />
+                    <Tabs.Screen name="tasks" />
                     <Tabs.Screen name="add" />
                     <Tabs.Screen name="family" />
                     <Tabs.Screen name="profile" />
                 </Tabs>
                 <TabsNavigation />
-            </View>
         </SafeAreaView>
     );
 }

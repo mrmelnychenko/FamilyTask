@@ -1,20 +1,18 @@
-import { Href, router } from "expo-router";
 import { ScrollView, View } from "react-native";
 
 import { FamilyHeroCard } from "@/src/components/home/FamilyHeroCard";
 import { HomeTaskList } from "@/src/components/home/HomeTaskList";
-import { WeeklyLeaders } from "@/src/components/home/WeeklyLeaders";
-import { LoadingScreen } from "@/src/components/ui/LoadingScreen";
-import { Typo } from "@/src/components/ui/Typo";
 import { useCurrentFamily, useFamilyMembers } from "@/src/hooks/queries/useFamily";
-import { useFamilyInvite } from "@/src/hooks/queries/useInvite";
-import { useFamilyTasks } from "@/src/hooks/queries/useTasks";
+import { useMyTodayTasks } from "@/src/hooks/queries/useTasks";
 import { useAuth } from "@/src/hooks/useAuth";
 import type {
   FamilyMember,
   FamilyMemberProfile,
 } from "@/src/services/family-service";
 import { ITask } from "../types/task";
+import { StreakCard } from "../components/ui/StreakCard";
+import { useProfile } from "../hooks/queries/useProfile";
+import { TableHeroes } from "../components/ui/TableHeroes";
 
 
 function getFamilyName(familyMember: unknown) {
@@ -77,44 +75,42 @@ export function HomeScreen() {
   } = useCurrentFamily(user?.id);
 
   const familyId = familyMember?.family_id ?? null;
-
+  const { data: profile } = useProfile(user?.id)
+  const { data: members } = useFamilyMembers(familyId!)
   const {
-    data: tasks = [],
-    isLoading: areTasksLoading,
+    data: myTodayTasks = [],
     isError: isTasksError,
-  } = useFamilyTasks(familyId);
- 
-console.log(tasks, '55555555555555555555')
+  } = useMyTodayTasks(user?.id!);
 
   return (
-      <View className="flex-1">
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 112, paddingHorizontal: 20, paddingTop: 16 }}
-          showsVerticalScrollIndicator={false}
-        >
-         <FamilyHeroCard />
+    <View className="flex-1">
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 112, paddingHorizontal: 20, paddingTop: 16 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <FamilyHeroCard />
 
-          <View className="gap-5  pt-5">
-            <View className="gap-3">
-            
-                <HomeTaskList
-                  tasks={tasks}
-                  isError={isTasksError}
-                />
-              
-            </View>
-
-            {/* <WeeklyLeaders members={members} />
-
-            <View className="rounded-3xl bg-white p-5 border border-border">
-              <Typo variant="h3">Сімейний прогрес</Typo>
-              <Typo className="mt-1 text-muted">
-                Виконано сьогодні: {doneToday}/{todayTasks.length}
-              </Typo>
-            </View> */}
+        <View className="gap-5  pt-5">
+          <View>
+            <StreakCard streak={profile.streak} />
           </View>
-        </ScrollView>
-      </View>
+          <View className="gap-3">
+
+            <HomeTaskList
+              tasks={myTodayTasks}
+              isError={isTasksError}
+            />
+
+          </View>
+
+          <View>
+            <TableHeroes/>
+          </View>
+
+
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 

@@ -14,7 +14,6 @@ type Props = {
 };
 
 export function HomeTaskList({ tasks, isError = false }: Props) {
-  console.log(tasks, 'rrrrrrrrrrrrrrrrrrr')
   if (isError) {
     return (
       <View className="rounded-2xl border border-danger bg-danger-bg p-4">
@@ -47,27 +46,39 @@ export function HomeTaskList({ tasks, isError = false }: Props) {
     );
   }
 
+  const displayTasks = [...tasks]
+    .sort((a, b) => {
+      if (a.deadline && !b.deadline) return -1;
+      if (!a.deadline && b.deadline) return 1;
+
+      if (a.deadline && b.deadline) {
+        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+      }
+
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    })
+    .slice(0, 5);
   return (
-    <View>
+    <View className="rounded-3xl bg-white border border-border p-4">
       <View className="flex-row justify-between items-center gap-2">
         <View className="flex flex-row items-center gap-2">
           <Feather name="target" size={20} color={colors.primary} />
           <Typo variant="h2">Todays tasks</Typo>
-          <View className="rounded-full bg-primary-light px-3 py-1">
+          <View className="rounded-full bg-background px-3 py-1">
             <Typo variant="label" className="text-primary">
               {tasks.length}
             </Typo>
           </View>
         </View>
-        <Pressable className="flex flex-row gap-1 text-primary" onPress={() => router.replace('/(protected)/(tabs)/create-task')}>
-          View all
+        <Pressable className="flex items-center flex-row gap-1 text-primary" onPress={() => router.replace('/(protected)/(tabs)/tasks')}>
+          <Typo variant="h3" className="text-primary">View all</Typo>
           <Feather name="arrow-right" size={24} color={colors.primary} />
         </Pressable>
 
       </View>
 
       <View className="gap-3 mt-3">
-        {tasks.map((task) => (
+        {displayTasks.map((task) => (
           <TaskCard key={task.id} task={task} />
         ))}
       </View>
