@@ -9,14 +9,13 @@ import { colors } from "@/src/utils/colors";
 export function AppHeader() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
-
   const hasUnreadNotifications = true; 
 
   return (
     <View 
       className="flex-row items-center justify-between px-5 py-4 bg-primary  border-b border-black/5"
     >
-      <Avatar name={profile?.name} />
+      <Avatar avatarUrl={profile.avatar_url} name={profile?.name} />
 
       <Pressable 
         className={cn(

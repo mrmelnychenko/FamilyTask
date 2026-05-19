@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import {  getProfile } from "../../services/profile-service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {  getProfile, uploadAvatar } from "../../services/profile-service";
 
 
 export function useProfile(userId?: string) {
@@ -12,14 +12,28 @@ export function useProfile(userId?: string) {
   });
 }
 
-// export function useCreateProfile() {
-//     const queryClient = useQueryClient();
-  
-//     return useMutation({
-//       mutationFn: createProfile,
-//       onSuccess: (data) => {
-//         queryClient.setQueryData(["profile", data.id], data);
-//       },
-//     });
-//   }
+export function useUpdateAvatar() {
+  const queryClient = useQueryClient();
 
+  return useMutation({
+    mutationFn: ({ userId, fileUri }: { userId: string; fileUri: string }) =>
+      uploadAvatar(userId, fileUri),
+
+    onSuccess: (_publicUrl, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["profile", variables.userId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["leaderboard"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+    },
+    onError: (error) => {
+      console.error("Error upload avatar:", error.message);
+    },
+  });
+}

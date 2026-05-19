@@ -5,13 +5,15 @@ import { useCurrentFamily } from "@/src/hooks/queries/useFamily";
 import { useProfile } from "@/src/hooks/queries/useProfile";
 import { useAuth } from "@/src/hooks/useAuth";
 import { colors } from "@/src/utils/colors";
-import { Href, Redirect, Tabs} from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Href, Redirect, Tabs } from "expo-router";
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabsLayout() {
     const { user } = useAuth();
     const { data: familyMember, isLoading } = useCurrentFamily(user?.id);
     const { isLoading: isProfileLoading } = useProfile(user?.id);
+    const insets = useSafeAreaInsets();
 
     if (isLoading || isProfileLoading) return <LoadingScreen />;
     if (!familyMember?.family_id) {
@@ -19,25 +21,33 @@ export default function TabsLayout() {
     }
 
     return (
-        <SafeAreaView className="flex-1 ">
-                <AppHeader />
-                <Tabs
-                    screenOptions={{
-                        headerShown: false,
-                        tabBarStyle: { display: 'none' },
-                        sceneStyle: {
-                            backgroundColor: colors.primaryLight,
-                          },
-                    }}
-                >
-                    <Tabs.Screen name="home" />
-                    <Tabs.Screen name="tasks" />
-                    <Tabs.Screen name="add" />
-                    <Tabs.Screen name="family" />
-                    <Tabs.Screen name="profile" />
-                </Tabs>
-                <TabsNavigation />
-        </SafeAreaView>
+        <View
+            className="flex-1"
+            style={{
+                paddingTop: insets.top,
+                paddingBottom: 0,
+                backgroundColor: colors.black 
+            }}
+        >
+            <AppHeader />
+            <Tabs
+                screenOptions={{
+                    headerShown: false,
+                    tabBarStyle: { display: 'none' },
+                    sceneStyle: {
+                        backgroundColor: colors.primaryLight,
+                    },
+
+                }}
+            >
+                <Tabs.Screen name="home" />
+                <Tabs.Screen name="tasks" />
+                <Tabs.Screen name="add" />
+                <Tabs.Screen name="family" />
+                <Tabs.Screen name="profile" />
+            </Tabs>
+            <TabsNavigation />
+        </View>
     );
 }
 

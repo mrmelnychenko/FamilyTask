@@ -1,4 +1,5 @@
 import { Feather, FontAwesome5 } from "@expo/vector-icons";
+import { ISegmentTabs } from "../types/task";
 
 export const TABS = [
     {
@@ -27,3 +28,10 @@ export const TABS = [
         href: '/(protected)/(tabs)/profile',
     },
 ];
+
+
+export const TABS_TASK: ISegmentTabs[] = [
+    { key: "my", label: "My" },
+    { key: "all", label: "All" },
+    { key: "done", label: "Done" },
+  ];

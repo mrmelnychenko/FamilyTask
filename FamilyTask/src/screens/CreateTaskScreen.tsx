@@ -3,18 +3,19 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   Pressable,
+  ScrollView,
   View,
 } from "react-native";
 
-import { LoadingScreen } from "@/src/components/ui/LoadingScreen";
 import { Typo } from "@/src/components/ui/Typo";
-import { TaskForm } from "@/src/components/tasks/TaskForm";
 import { useCurrentFamily, useFamilyMembers } from "@/src/hooks/queries/useFamily";
 import { useCreateTask } from "@/src/hooks/queries/useTasks";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useProfile } from "@/src/hooks/queries/useProfile";
-import type { TaskFormData } from "@/src/schemas/task.schema";
 import { colors } from "@/src/utils/colors";
+import { TaskFormData } from "../schemas/task.schema";
+import { TaskForm } from "../components/tasks/TaskForm";
+
 
 function goBackOrHome() {
   if (router.canGoBack()) {
@@ -27,89 +28,77 @@ function goBackOrHome() {
 
 export function CreateTaskScreen() {
   const { user } = useAuth();
-  const { data: profile, isLoading: isProfileLoading } = useProfile(user?.id);
-  const { data: familyMember, isLoading: isFamilyLoading } = useCurrentFamily(
-    user?.id
-  );
-
-  const familyId = familyMember?.family_id ?? null;
-  const { data: members = [], isLoading: areMembersLoading } = useFamilyMembers(
-    familyId ?? undefined
-  );
-  const createTask = useCreateTask();
+  const { data: family } = useCurrentFamily(user?.id);
+  const { data: members = [] } = useFamilyMembers(family?.family_id);
+  const { data: profile } = useProfile(user?.id);
+  const { mutateAsync: createTask, isPending } = useCreateTask();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  async function handleCreateTask(data: TaskFormData) {
-    if (!familyId || !profile?.id) {
-      setSubmitError("Не вдалося завантажити дані сімʼї або профілю.");
-      return;
-    }
+  const canAssignToOthers =
+    profile?.role === "OWNER" || profile?.role === "ADMIN";
 
+  async function onSubmit(data: TaskFormData) {
+    if (!family?.family_id || !profile?.id) return;
     setSubmitError(null);
-
     try {
-      await createTask.mutateAsync({
-        familyId,
+      await createTask({
+        familyId: family.family_id,
         creatorId: profile.id,
         assigneeId: data.assigneeId,
         title: data.title.trim(),
         description: data.description?.trim() || null,
-        dueDate: data.dueDate?.trim() || null,
-        dueTime: data.dueTime?.trim() || null,
-        priority: data.priority,
+        dueDate: data.is_recurring ? null : data.dueDate,
+        dueTime: data.is_recurring ? null : data.dueTime,
+        priority: data.priority, 
+        category: data.category,
+        is_recurring: data.is_recurring,
+        recurrence: data.is_recurring ? data.recurrence : null,
+        recurrence_days: data.is_recurring ? data.recurrence_days : null,
       });
-
       goBackOrHome();
-    } catch (error) {
-      console.log("createTask error:", error);
+    } catch {
       setSubmitError("Не вдалося створити задачу. Спробуйте ще раз.");
     }
   }
 
-  const loading = isProfileLoading || isFamilyLoading || areMembersLoading;
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
   return (
-
-    <View>
-      <View className="flex-row items-center gap-3">
-        <Pressable
-          onPress={goBackOrHome}
-          className="h-11 w-11 items-center justify-center rounded-full bg-white border border-border"
-        >
-          <Feather name="arrow-left" size={20} color={colors.text} />
-        </Pressable>
-
-        <View className="flex-1">
-          <Typo variant="h2">Нова задача</Typo>
-          <Typo className="text-muted">
-            Створіть завдання для сімʼї
-          </Typo>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ paddingBottom: 40 }}
+    >
+      <View className="gap-4 p-4">
+        {/* HEADER */}
+        <View className="flex-row items-center gap-3">
+          <Pressable
+            onPress={goBackOrHome}
+            className="h-11 w-11 items-center justify-center rounded-full bg-white border border-border"
+          >
+            <Feather name="arrow-left" size={20} color={colors.text} />
+          </Pressable>
+          <View>
+            <Typo variant="h2">Нова задача</Typo>
+            <Typo className="text-muted">Створіть завдання для сімʼї</Typo>
+          </View>
         </View>
+
+        {!family?.family_id ? (
+          <View className="rounded-2xl border border-warning bg-warning-bg p-4">
+            <Typo variant="h3" className="text-text">Сімʼю ще не налаштовано</Typo>
+            <Typo className="mt-1 text-muted">
+              Після створення або приєднання до сімʼї тут можна буде додавати задачі.
+            </Typo>
+          </View>
+        ) : (
+          <TaskForm
+            members={members}
+            currentUserId={user?.id ?? ""}
+            canAssignToOthers={canAssignToOthers}
+            loading={isPending}
+            error={submitError}
+            onSubmit={onSubmit}
+          />
+        )}
       </View>
-
-      {!familyId ? (
-        <View className="rounded-2xl border border-warning bg-warning-bg p-4">
-          <Typo variant="h3" className="text-text">
-            Сімʼю ще не налаштовано
-          </Typo>
-          <Typo className="mt-1 text-muted">
-            Після створення або приєднання до сімʼї тут можна буде
-            додавати задачі.
-          </Typo>
-        </View>
-      ) : (
-        <TaskForm
-          members={members}
-          loading={createTask.isPending}
-          error={submitError}
-          onSubmit={handleCreateTask}
-        />
-      )}
-
-    </View>
+    </ScrollView>
   );
 }

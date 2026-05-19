@@ -3,9 +3,10 @@ import { createInvite } from "./invite-service";
 
 export type FamilyMemberProfile = {
   id: string;
-  name: string | null;
+  name: string;
   email: string | null;
   avatar_emoji: string | null;
+  avatar_url: string | null;
   xp: number | null;
   streak: number | null;
 };
@@ -14,7 +15,7 @@ export type FamilyMember = {
   id: string;
   role: string | null;
   created_at: string;
-  profiles: FamilyMemberProfile | FamilyMemberProfile[] | null;
+  profiles: FamilyMemberProfile | null;
 };
 
 export async function createFamilyService({
@@ -116,6 +117,7 @@ export async function getFamilyMembers(
         name,
         email,
         avatar_emoji,
+        avatar_url,
         xp,
         streak
       )

@@ -37,3 +37,15 @@ export const colors = {
   muted: "#6B7280",
   light: "#9CA3AF",
 };
+
+export const BG_COLORS = [
+  colors.primary,
+  colors.pink,
+  colors.warning,
+  colors.success,
+  colors.blue,
+  colors.gold,
+  colors.danger,
+  colors.primaryDark,
+  colors.cyan,
+];

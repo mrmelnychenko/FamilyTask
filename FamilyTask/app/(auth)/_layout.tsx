@@ -3,19 +3,14 @@ import { useAuth } from '@/src/hooks/useAuth';
 import { colors } from '@/src/utils/colors';
 import { Redirect, Stack } from 'expo-router';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AuthLayout() {
-  const { user, loading } = useAuth();
-
-  if (loading) return <LoadingScreen />;
-
-  if (user) {
-    return <Redirect href="/home" />;
-  }
+  const { user, loading} = useAuth();
+  
+  if (loading) return <LoadingScreen />; 
 
   return (
-    <SafeAreaView className="flex-1">
+    // <SafeAreaView className="flex-1">
       <View className="flex-1">
 
         <KeyboardAvoidingView
@@ -32,6 +27,6 @@ export default function AuthLayout() {
           />
         </KeyboardAvoidingView>
       </View>
-    </SafeAreaView>
+    // </SafeAreaView>
   );
 }
