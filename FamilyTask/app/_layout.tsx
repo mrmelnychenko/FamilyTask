@@ -11,7 +11,7 @@ import "@/src/lib/querySetup";
 import Toast from 'react-native-toast-message';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { toastConfig } from '@/src/components/toast/ToastConfig';
-
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
@@ -42,8 +42,11 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <RootSiblingParent>
         <AuthProvider>
-          <RootLayoutNav />
-          <Toast config={toastConfig} />
+        <GestureHandlerRootView style={{ flex: 1 }}>
+
+            <RootLayoutNav />
+            <Toast config={toastConfig} />
+        </GestureHandlerRootView>
         </AuthProvider>
       </RootSiblingParent>
     </QueryClientProvider>

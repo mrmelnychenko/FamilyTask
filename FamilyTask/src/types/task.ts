@@ -57,3 +57,11 @@ export type CreateTaskParams = {
     label: string;
   };
   
+
+
+  export interface ITaskFilters {
+    recurrence: TaskRecurrence | null;
+    priority: TaskPriority | null;
+    categories: TaskCategory[];
+  }
+  

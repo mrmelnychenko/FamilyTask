@@ -4,78 +4,116 @@ import { FlatList, Pressable, View } from "react-native"
 import { Typo } from "../ui/Typo"
 import { cn } from "@/src/utils/cn"
 import { Avatar } from "../ui/Avatar"
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { Ionicons } from "@expo/vector-icons"
+import { useAppToast } from "@/src/hooks/useToast"
 
-export function StoryList({ onSelectMembers }: { onSelectMembers?: (ids: string[]) => void }) {
-    const { user } = useAuth();
-    const { data: family } = useCurrentFamily(user?.id);
-    const { data: familyMembers } = useFamilyMembers(family?.family_id);
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+export function StoryList({
+  onSelectMembers,
+}: {
+  onSelectMembers?: (ids: string[]) => void;
+}) {
+  const { user } = useAuth();
+
+  const { data: family } = useCurrentFamily(user?.id);
+  const { data: familyMembers } = useFamilyMembers(family?.family_id);
+
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const toast = useAppToast();
+
+ 
   
-    const toggleMember = (id: string) => {
-      const next = selectedIds.includes(id)
-        ? selectedIds.filter((i) => i !== id)
-        : [...selectedIds, id];
+  const sortedMembers = useMemo(() => {
+    if (!familyMembers) return [];
+    return [...familyMembers].sort((a, b) => {
+      if (a.profiles?.id === user?.id) return -1;
+      if (b.profiles?.id === user?.id) return 1;
+      return 0;
+    });
+  }, [familyMembers, user?.id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+  
+    setSelectedIds([user.id]);
+    onSelectMembers?.([user.id]);
+  }, [user?.id]);
+
+  const toggleMember = (id: string) => {
+    if (selectedIds.includes(id)) {
+      
+      if (selectedIds.length === 1){
+        toast.info({
+          title: "Selection required",
+          message: "At least one member must be selected",
+        });
+        return;
+      }
+  
+      const next = selectedIds.filter((i) => i !== id);
   
       setSelectedIds(next);
       onSelectMembers?.(next);
-    };
   
-    const selectAll = () => {
-      setSelectedIds([]);
-      onSelectMembers?.([]);
-    };
+      return;
+    }
   
-    const isAllSelected = selectedIds.length === 0;
-    const allItem = { id: "all", profiles: { name: "All", avatar_url: null } };
-    const data = [allItem, ...(familyMembers ?? [])];
+    const next = [...selectedIds, id];
   
-    return (
-      <FlatList
-        data={data}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        contentContainerClassName="gap-4 px-4 pb-4"
-        renderItem={({ item }) => {
-          const isAll = item.id === "all";
-          const isActive = isAll ? isAllSelected : selectedIds.includes(item.id);
-  
-          return (
-            <Pressable
-              className="items-center gap-1"
-              onPress={() => (isAll ? selectAll() : toggleMember(item.id))}
-            >
-              <View className={cn(
+    setSelectedIds(next);
+    onSelectMembers?.(next);
+  };
+  return (
+    <FlatList
+      data={sortedMembers}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={(item) => item.id}
+      contentContainerClassName="gap-4 px-4 pb-4"
+      renderItem={({ item }) => {
+        const memberId = item.profiles?.id;
+      
+        if (!memberId) return null;
+      
+        const isActive = selectedIds.includes(memberId);
+      
+        return (
+          <Pressable
+            className="items-center gap-1"
+            onPress={() => toggleMember(memberId)}
+          >
+            <View
+              className={cn(
                 "w-14 h-14 rounded-full items-center justify-center",
-                isActive ? "border-4 border-primary" : "border-2 border-outline opacity-50"
-              )}>
-                {isAll ? (
-                  <Typo className="font-bold text-lg">All</Typo>
-                ) : (
-                  <Avatar
-                    size={50}
-                    avatarUrl={item.profiles?.avatar_url}
-                    name={item.profiles?.name}
-                  />
-                )}
-  
-                {isActive && !isAll && (
-                  <View className="absolute -bottom-1 -right-1 bg-primary rounded-full p-0.5 border-2 border-background">
-                    <Typo className="text-[10px] text-white">✓</Typo>
-                  </View>
-                )}
-              </View>
-  
-              <Typo className={cn(
+                isActive
+                  ? "border-4 border-primary"
+                  : "border-2 border-outline opacity-60"
+              )}
+            >
+              <Avatar
+                size={50}
+                avatarUrl={item.profiles?.avatar_url}
+                name={item.profiles?.name}
+              />
+      
+              {isActive && (
+                <View className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1 border-2 border-background">
+                  <Ionicons name="checkmark" size={12} color="white" />
+                </View>
+              )}
+            </View>
+      
+            <Typo
+              className={cn(
                 "text-[12px] font-bold",
                 isActive ? "text-primary" : "text-muted"
-              )}>
-                {item.profiles?.name}
-              </Typo>
-            </Pressable>
-          );
-        }}
-      />
-    );
-  }
+              )}
+            >
+              {item.profiles?.name}
+            </Typo>
+          </Pressable>
+        );
+      }}
+    />
+  );
+}

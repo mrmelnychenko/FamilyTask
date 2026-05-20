@@ -6,14 +6,15 @@ import { colors } from '@/src/utils/colors';
 import { TABS } from '@/src/constants/tabs';
 import { BlurView } from 'expo-blur';
 
+
 export function TabsNavigation() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
-
+ 
   return (
     <View
       pointerEvents="box-none"
-      className="absolute bottom-0 left-0 right-0 px-4"
+      className="absolute bottom-0 left-0 right-0 px-4 z-0"
       style={{
         paddingBottom: insets.bottom > 0 ? insets.bottom * 0.6 : 8,
       }}

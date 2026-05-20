@@ -1,4 +1,4 @@
-import { Redirect, Slot} from 'expo-router';
+import { Redirect, Slot } from 'expo-router';
 import { useAuth } from '@/src/hooks/useAuth';
 import { LoadingScreen } from '@/src/components/ui/LoadingScreen';
 
@@ -8,5 +8,7 @@ export default function ProtectedLayout() {
   if (loading) return <LoadingScreen />;
   if (!user) return <Redirect href="/login" />;
 
-  return <Slot />;
+  return (
+      <Slot />
+  )
 }

@@ -5,6 +5,7 @@ import { useCurrentFamily } from "@/src/hooks/queries/useFamily";
 import { useProfile } from "@/src/hooks/queries/useProfile";
 import { useAuth } from "@/src/hooks/useAuth";
 import { colors } from "@/src/utils/colors";
+import { useFiltersToggle } from "@/src/store/store";
 import { Href, Redirect, Tabs } from "expo-router";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,6 +15,7 @@ export default function TabsLayout() {
     const { data: familyMember, isLoading } = useCurrentFamily(user?.id);
     const { isLoading: isProfileLoading } = useProfile(user?.id);
     const insets = useSafeAreaInsets();
+    const {filterVisible} = useFiltersToggle()
 
     if (isLoading || isProfileLoading) return <LoadingScreen />;
     if (!familyMember?.family_id) {
@@ -46,7 +48,7 @@ export default function TabsLayout() {
                 <Tabs.Screen name="family" />
                 <Tabs.Screen name="profile" />
             </Tabs>
-            <TabsNavigation />
+             {!filterVisible && <TabsNavigation />}
         </View>
     );
 }
