@@ -8,7 +8,9 @@ export default function AuthLayout() {
   const { user, loading} = useAuth();
   
   if (loading) return <LoadingScreen />; 
-
+  if (user) {
+    return <Redirect href="/(protected)/(tabs)/home" />;
+  }
   return (
     // <SafeAreaView className="flex-1">
       <View className="flex-1">

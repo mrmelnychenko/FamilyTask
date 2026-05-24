@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View } from "react-native";
+import { FlatList, Pressable, ScrollView, View } from "react-native";
 import { HorizontalCalendar } from "../components/tasks/HorizontalCalendar";
 import { useMemo, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
@@ -99,23 +99,32 @@ export function TasksScreen() {
                 </View>
 
                 {/* TASKS */}
-                <View className="px-4 mt-4">
-                    {filteredTasks.map((task) => (
-                        <TaskCard key={task.id} task={task} />
-                    ))}
-                </View>
+                <FlatList
+                    data={filteredTasks}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => (
+                        <TaskCard task={item} />
+                    )}
+                    contentContainerStyle={{
+                        paddingHorizontal: 16,
+                        marginTop: 16,         
+                        paddingBottom: 20     
+                    }}
+                    ItemSeparatorComponent={() => <View className="h-3" />}
+                    scrollEnabled={false}
+                />
             </ScrollView>
 
 
             {/* only for mobile  !important */}
             {/* FILTER SHEET */}
-            <FilterTaskBottom
+            {/* <FilterTaskBottom
                     visible={filterVisible}
                     initialFilters={filters}
                     onClose={closeFilters}
                     onApply={handleApplyFilters}
-                />
-            
+                /> */}
+
         </View>
     )
 }
