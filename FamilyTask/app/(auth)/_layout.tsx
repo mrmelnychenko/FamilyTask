@@ -1,11 +1,11 @@
 import { LoadingScreen } from '@/src/components/ui/LoadingScreen';
 import { useAuth } from '@/src/hooks/useAuth';
 import { colors } from '@/src/utils/colors';
-import { Redirect, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
 export default function AuthLayout() {
-  const { user, loading} = useAuth();
+  const { loading } = useAuth();
   
   if (loading) return <LoadingScreen />; 
 

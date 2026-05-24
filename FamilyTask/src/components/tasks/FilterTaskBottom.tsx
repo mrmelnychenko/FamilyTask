@@ -66,7 +66,7 @@ export function FilterTaskBottom({
     } else {
       bottomSheetRef.current?.close();
     }
-  }, [visible]);
+  }, [initialFilters, visible]);
 
   const toggleRecurrence = (key: TaskRecurrence) => {
     setFilters((f) => ({
@@ -112,7 +112,7 @@ export function FilterTaskBottom({
     >
       {/* HEADER */}
       <View className="flex-row justify-between items-center px-5 py-3">
-        <Typo className="text-xl font-bold">Filters</Typo>
+        <Typo className="text-xl font-bold">Фільтри</Typo>
 
         <Pressable onPress={onClose} className="p-2 rounded-full bg-white">
           <MaterialIcons name="close" size={20} />
@@ -123,7 +123,7 @@ export function FilterTaskBottom({
       <BottomSheetScrollView className="px-5 gap-6">
         {/* Recurrence */}
         <View className="gap-2">
-          <Typo className="font-semibold">Recurrence</Typo>
+          <Typo className="font-semibold">Повторення</Typo>
 
           <View className="flex-row flex-wrap gap-2">
             {RECURRENCE_OPTIONS.map((o) => (
@@ -139,7 +139,7 @@ export function FilterTaskBottom({
 
         {/* Priority */}
         <View className="gap-2">
-          <Typo className="font-semibold">Priority</Typo>
+          <Typo className="font-semibold">Пріоритет</Typo>
 
           <View className="flex-row flex-wrap gap-2">
             {TASK_PRIORITIES.map((o) => (
@@ -156,7 +156,7 @@ export function FilterTaskBottom({
 
         {/* Categories */}
         <View className="gap-2">
-          <Typo className="font-semibold">Categories</Typo>
+          <Typo className="font-semibold">Категорії</Typo>
 
           <View className="flex-row flex-wrap gap-2">
             {TASK_CATEGORIES.map((item) => (
@@ -182,14 +182,14 @@ export function FilterTaskBottom({
           onPress={reset}
           className="flex-1 py-3 rounded-full bg-background items-center"
         >
-          <Typo>Reset</Typo>
+          <Typo>Скинути</Typo>
         </Pressable>
 
         <Pressable
           onPress={apply}
           className="flex-[2] py-3 rounded-full bg-primary items-center"
         >
-          <Typo className="text-white font-semibold">Apply</Typo>
+          <Typo className="text-white font-semibold">Застосувати</Typo>
         </Pressable>
       </View>
     </BottomSheet>

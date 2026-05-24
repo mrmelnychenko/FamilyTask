@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     TextInput,
     View,
@@ -10,8 +10,6 @@ import { Feather } from "@expo/vector-icons";
 import { cn } from "@/src/utils/cn";
 import { Typo } from "./Typo";
 import { colors } from "@/src/utils/colors";
-
-import { useEffect } from "react"; 
 
 type Props = TextInputProps & {
     label?: string;
@@ -32,20 +30,20 @@ export function Input({
     const [hidden, setHidden] = useState(!!secureTextEntry);
     const shakeAnim = useRef(new Animated.Value(0)).current;
 
-    useEffect(() => {
-        if (error) {
-            triggerShake();
-        }
-    }, [error]);
-
-    function triggerShake() {
+    const triggerShake = useCallback(() => {
         Animated.sequence([
             Animated.timing(shakeAnim, { toValue: 8, duration: 40, useNativeDriver: true }),
             Animated.timing(shakeAnim, { toValue: -8, duration: 40, useNativeDriver: true }),
             Animated.timing(shakeAnim, { toValue: 6, duration: 40, useNativeDriver: true }),
             Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: true }),
         ]).start();
-    }
+    }, [shakeAnim]);
+
+    useEffect(() => {
+        if (error) {
+            triggerShake();
+        }
+    }, [error, triggerShake]);
 
     const iconColor = error
         ? colors.danger

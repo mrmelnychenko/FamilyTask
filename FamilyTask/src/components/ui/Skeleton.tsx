@@ -30,7 +30,7 @@ export function Skeleton({
       -1,
       true
     );
-  }, []);
+  }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

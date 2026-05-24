@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { Feather } from '@expo/vector-icons';
@@ -22,8 +22,8 @@ export function InviteCopyButton({inviteCode}: IInviteCopyButton) {
 
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         success({
-            title: 'Copied',
-            message: 'Invite code copied to clipboard',
+            title: 'Скопійовано',
+            message: 'Код запрошення скопійовано',
           });
         setTimeout(() => {
             setCopied(false);
@@ -41,7 +41,7 @@ export function InviteCopyButton({inviteCode}: IInviteCopyButton) {
                 <Typo variant='body' className='text-white'
                     numberOfLines={1}
                 >
-                    {copied ? 'Copied' : inviteCode}
+                    {copied ? 'Скопійовано' : inviteCode}
                 </Typo>
             </View>
 

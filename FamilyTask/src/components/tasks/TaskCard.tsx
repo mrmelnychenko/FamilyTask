@@ -1,56 +1,82 @@
 import { Feather } from "@expo/vector-icons";
-import { Pressable, View } from "react-native";
+import { Alert, Pressable, View } from "react-native";
 
 import { Typo } from "@/src/components/ui/Typo";
 import { colors } from "@/src/utils/colors";
 import { Avatar } from "../ui/Avatar";
 import { ITask } from "@/src/types/task";
 import { cn } from "@/src/utils/cn";
-import { useCompleteTask, useUncompleteTask } from "@/src/hooks/queries/useTasks";
+import {
+  useCompleteTask,
+  useDeleteTask,
+  useUncompleteTask,
+} from "@/src/hooks/queries/useTasks";
 import { useAuth } from "@/src/hooks/useAuth";
 import { format } from "date-fns";
 
 type Props = {
   task: ITask;
   selectedDate?: Date;
+  showActions?: boolean;
 };
 
-export function TaskCard({ task, selectedDate }: Props) {
+export function TaskCard({ task, selectedDate, showActions = false }: Props) {
   const { mutate: completeTaskMutate, isPending: isCompleting } = useCompleteTask();
   const { mutate: uncompleteTaskMutate, isPending: isUncompleting } = useUncompleteTask();
+  const { mutate: deleteTaskMutate, isPending: isDeleting } = useDeleteTask();
   const { user } = useAuth();
 
-  const isPending = isCompleting || isUncompleting;
+  const isPending = isCompleting || isUncompleting || isDeleting;
+  const completionUserId = task.assigned_to ?? user?.id;
 
   const recurringDate = task.is_recurring
     ? format(selectedDate ?? new Date(), "yyyy-MM-dd")
     : undefined;
-console.log(recurringDate, 'recurringDate')
+
   const isDone = task.is_recurring
     ? task.completions?.some(
-        (c) => c.user_id === user?.id && c.recurring_date === recurringDate
+        (c) => c.user_id === completionUserId && c.recurring_date === recurringDate
       ) ?? false
     : task.status === "DONE";
 
   const handlePressCheckbox = () => {
-    if (isPending) return;
+    if (isPending || !completionUserId) return;
 
     if (isDone) {
       uncompleteTaskMutate({
         taskId: task.id,
-        userId: user?.id!,
+        userId: completionUserId,
         familyId: task.family_id,
         recurringDate,
+        title: task.title,
+        deadline: task.deadline,
       });
     } else {
       completeTaskMutate({
         taskId: task.id,
-        userId: user?.id!,
+        userId: completionUserId,
         familyId: task.family_id,
         xpEarned: task.xp_reward,
         recurringDate,
       });
     }
+  };
+
+  const handleDelete = () => {
+    if (isPending) return;
+
+    Alert.alert(
+      "Видалити задачу?",
+      "Цю дію не можна буде швидко скасувати.",
+      [
+        { text: "Скасувати", style: "cancel" },
+        {
+          text: "Видалити",
+          style: "destructive",
+          onPress: () => deleteTaskMutate(task.id),
+        },
+      ]
+    );
   };
 
   return (
@@ -126,7 +152,7 @@ console.log(recurringDate, 'recurringDate')
       </View>
 
       {/* RIGHT */}
-      <View className="flex-row items-center">
+      <View className="flex-row items-center gap-2">
         {isDone ? (
           <View className="bg-success-bg px-3 py-1 rounded-full">
             <Typo className="text-success text-[10px] font-semibold uppercase">
@@ -139,6 +165,19 @@ console.log(recurringDate, 'recurringDate')
             avatarUrl={task.assignee?.avatar_url ?? undefined}
           />
         )}
+
+        {showActions ? (
+          <Pressable
+            onPress={handleDelete}
+            disabled={isPending}
+            className={cn(
+              "h-9 w-9 items-center justify-center rounded-full bg-danger-bg",
+              isPending && "opacity-50"
+            )}
+          >
+            <Feather name="trash-2" size={16} color={colors.danger} />
+          </Pressable>
+        ) : null}
       </View>
     </View>
   );

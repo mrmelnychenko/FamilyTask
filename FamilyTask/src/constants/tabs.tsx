@@ -3,27 +3,27 @@ import { ISegmentTabs } from "../types/task";
 
 export const TABS = [
     {
-        label: 'Home',
+        label: 'Головна',
         icon: (color: string) => <Feather name="home" size={18} color={color} />,
         href: '/(protected)/(tabs)/home',
     },
     {
-        label: 'Tasks',
+        label: 'Задачі',
         icon: (color: string) => <FontAwesome5 name="tasks" size={18} color={color} />,
         href: '/(protected)/(tabs)/tasks',
     },
     {
-        label: 'Add',
+        label: 'Додати',
         icon: (color: string) => <Feather name="plus" size={18} color={color} />,
-        href: '/(protected)/create-task',
+        href: '/(protected)/(tabs)/create-task',
     },
     {
-        label: 'Family',
+        label: 'Сімʼя',
         icon: (color: string) => <Feather name="users" size={18} color={color} />,
         href: '/(protected)/(tabs)/family',
     },
     {
-        label: 'Profile',
+        label: 'Профіль',
         icon: (color: string) => <Feather name="user" size={18} color={color} />,
         href: '/(protected)/(tabs)/profile',
     },

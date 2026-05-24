@@ -44,7 +44,7 @@ export default function TabsLayout() {
             >
                 <Tabs.Screen name="home" />
                 <Tabs.Screen name="tasks" />
-                <Tabs.Screen name="add" />
+                <Tabs.Screen name="create-task" />
                 <Tabs.Screen name="family" />
                 <Tabs.Screen name="profile" />
             </Tabs>

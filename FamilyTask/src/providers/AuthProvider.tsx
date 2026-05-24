@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import { cancelAllTaskReminders } from "../services/notification-service";
 
 type AuthContextType = {
   // session: Session | null;
@@ -42,6 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = async () => {
+    await cancelAllTaskReminders();
     await supabase.auth.signOut();
     setSession(null);
   };

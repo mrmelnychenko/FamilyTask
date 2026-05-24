@@ -1,7 +1,7 @@
 import { Pressable, View } from "react-native";
 
 import { Typo } from "@/src/components/ui/Typo";
-import type { TaskPriority } from "@/src/schemas/task.schema";
+import type { TaskPriority } from "@/src/types/task";
 import { cn } from "@/src/utils/cn";
 
 type PriorityOption = {
@@ -13,7 +13,7 @@ type PriorityOption = {
 const PRIORITY_OPTIONS: PriorityOption[] = [
   { value: "low", label: "Низький", className: "bg-success-bg border-success" },
   {
-    value: "medium",
+    value: "normal",
     label: "Середній",
     className: "bg-primary-light border-primary",
   },

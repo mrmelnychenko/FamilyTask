@@ -62,7 +62,7 @@ export function useFamilyLeaderboard(
     period: "week" | "month" | "all" = "week"
   ) {
     return useQuery({
-      queryKey: ["leaderboard", familyId],
+      queryKey: ["leaderboard", familyId, period],
       queryFn: () => getFamilyLeaderboard(familyId!, period),
       enabled: !!familyId,
     });

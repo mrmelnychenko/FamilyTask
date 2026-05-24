@@ -4,7 +4,7 @@ import { FlatList, Pressable, View } from "react-native"
 import { Typo } from "../ui/Typo"
 import { cn } from "@/src/utils/cn"
 import { Avatar } from "../ui/Avatar"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Ionicons } from "@expo/vector-icons"
 import { useAppToast } from "@/src/hooks/useToast"
 
@@ -21,7 +21,13 @@ export function StoryList({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const toast = useAppToast();
 
- 
+  const notifySelectedMembers = useCallback(
+    (ids: string[]) => {
+      onSelectMembers?.(ids);
+    },
+    [onSelectMembers]
+  );
+
   
   const sortedMembers = useMemo(() => {
     if (!familyMembers) return [];
@@ -36,16 +42,16 @@ export function StoryList({
     if (!user?.id) return;
   
     setSelectedIds([user.id]);
-    onSelectMembers?.([user.id]);
-  }, [user?.id]);
+    notifySelectedMembers([user.id]);
+  }, [notifySelectedMembers, user?.id]);
 
   const toggleMember = (id: string) => {
     if (selectedIds.includes(id)) {
       
       if (selectedIds.length === 1){
         toast.info({
-          title: "Selection required",
-          message: "At least one member must be selected",
+          title: "Потрібен виконавець",
+          message: "Оберіть хоча б одного учасника",
         });
         return;
       }
@@ -53,7 +59,7 @@ export function StoryList({
       const next = selectedIds.filter((i) => i !== id);
   
       setSelectedIds(next);
-      onSelectMembers?.(next);
+      notifySelectedMembers(next);
   
       return;
     }
@@ -61,7 +67,7 @@ export function StoryList({
     const next = [...selectedIds, id];
   
     setSelectedIds(next);
-    onSelectMembers?.(next);
+    notifySelectedMembers(next);
   };
   return (
     <FlatList

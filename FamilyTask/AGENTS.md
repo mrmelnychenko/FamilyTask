@@ -197,6 +197,8 @@ use router.push, router.replace, or <Redirect /> where appropriate
 keep route structure clean
 do not create duplicate screens with the same purpose
 do not replace `RootLayoutNav`, `AuthProvider`, or the protected layout redirect flow unless explicitly requested
+Bottom tab navigation should be driven by Expo Router tabs and the existing tab config/navigation components. Do not create ad hoc per-screen bottom navigation such as `HomeBottomNav` inside `HomeScreen`.
+If a tab item is added, make sure the matching route file exists in `app/(protected)/(tabs)/` and the href matches the real Expo Router path.
 
 If React Navigation is already used in the existing code, follow the existing pattern and do not mix navigation styles unnecessarily.
 
@@ -298,9 +300,11 @@ Current schema notes from the existing code:
 - Family membership is checked through a `family_members` table.
 - Invite creation uses an `invites` table with `family_id`, `invite_code`, `created_by`, `status`, and role/email fields.
 - Profile creation is expected to happen automatically after auth registration.
-- `tasks` currently uses `created_by`, `assigned_to`, `deadline`, and `xp_reward`.
-- `tasks` does not currently expose `creator_id`, `assignee_id`, `due_date`, `due_time`, `priority`, `points_reward`, `recurring`, or `completed_at` in the Supabase REST schema.
-- Do not send `tasks.status` from the frontend on create unless the real allowed values are verified first. Let the database default handle initial status.
+- `tasks` currently uses `family_id`, `created_by`, `assigned_to`, `title`, `description`, `deadline`, `status`, `xp_reward`, `priority`, `category`, `is_recurring`, `recurrence`, `recurrence_days`, and `recurrence_end_date` in frontend service code.
+- `tasks.status` is currently updated to `DONE` when a non-recurring task is completed and back to `PENDING` when it is uncompleted. Do not send `status` during task creation unless the database default changes.
+- Task completion records are stored in `task_completions`; recurring task completion should use completion rows instead of changing the main task status.
+- `task_completions` should be protected against duplicated XP with unique indexes for one-time completions and recurring completions per date. Keep related SQL scripts in `scripts/sql/` unless a formal Supabase migrations folder is introduced.
+- Do not send unsupported aliases such as `creator_id`, `assignee_id`, `due_date`, `due_time`, or `points_reward` unless the real database schema is updated first.
 - Before adding or changing database fields, inspect the current Supabase schema or existing service code and explain any mismatch.
 
 Design System
@@ -448,6 +452,7 @@ Current UI rule:
 - For buttons, text, inputs, and loading UI, use the custom components from `src/components/ui/`.
 - Prefer `Button`, `Typo`, `Input`, `Box`, and `LoadingScreen` over raw `Pressable`, `Text`, `TextInput`, or `ActivityIndicator` in new feature code.
 - Use NativeWind `className` styling when it matches the existing component style.
+- Use the existing `cn` helper from `@/src/utils/cn` when composing conditional `className` values.
 - Use `colors` from `@/src/utils/colors` when inline styles are needed.
 - Create reusable feature components when a screen grows beyond a simple form or repeated UI appears.
 - For task UI, prefer small components such as task form fields, emoji picker, priority selector, assignee selector, and XP summary instead of putting everything inside one screen file.
@@ -600,12 +605,11 @@ Current Priority Tasks
 
 Current likely priority:
 
-Clean registration flow
-Clean login flow
-Redirect user after login/register
-Add create family screen
-Add join family by invite code
-Prepare home screen after onboarding
+Stabilize tabs navigation and protected redirects
+Do not change `HomeScreen` unless the owner explicitly asks; another developer is preparing/relocating some Home components.
+Add/finish FamilyScreen for family members and invite code management
+Improve TasksScreen and CreateTaskScreen UX
+Prepare task completion XP/streak logic
 
 Important:
 
@@ -646,6 +650,14 @@ Component size and structure:
 - Keep form schemas in `src/schemas/`.
 - Keep submit/database logic in services and TanStack Query hooks, not in presentational components.
 - For create/edit flows, make the screen compose a form component plus small selectors/cards instead of owning every input directly.
+- Keep component bodies clean. Move reusable handlers, pure helper functions, mappers, constants, and formatting logic outside the component when they do not need component-local state.
+- Keep only hook calls and small component-specific handlers inside the component.
+
+Platform compatibility:
+
+- Primary testing target is iOS/Android through Expo Go or native builds.
+- Some native libraries/components may not work in the browser. Before relying on web testing, check whether the used component supports web.
+- If a component is native-only, guard it with `Platform.OS`, provide a simple web fallback, or clearly explain that web requires temporarily disabling that component.
 Import Rules
 
 Prefer alias imports if the project supports them:
@@ -739,8 +751,8 @@ When working on task creation or editing:
 - Show create/update failures as inline error blocks.
 - Keep `CreateTaskScreen` small. Extract reusable pieces such as `TaskForm`, `EmojiPicker`, `PrioritySelector`, `AssigneeSelector`, and `TaskXpSummary` when needed.
 - Reuse existing family/member query patterns. Do not manually join `family_members` and `profiles` in frontend code when Supabase nested select can return the related profile.
-- Keep the final insert payload aligned with the real `tasks` columns: `family_id`, `created_by`, `assigned_to`, `title`, `description`, `deadline`, `xp_reward`.
-- Do not send unsupported task fields such as `assignee_id`, `creator_id`, `due_date`, `due_time`, `points_reward`, or `priority` unless the real database schema is updated first.
+- Keep the final insert payload aligned with the real `tasks` columns: `family_id`, `created_by`, `assigned_to`, `title`, `description`, `deadline`, `xp_reward`, `priority`, `category`, `is_recurring`, `recurrence`, `recurrence_days`, and `recurrence_end_date`.
+- Do not send unsupported task fields such as `assignee_id`, `creator_id`, `due_date`, `due_time`, or `points_reward` unless the real database schema is updated first.
 Preferred Task Size
 
 Prefer small tasks like:
