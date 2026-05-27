@@ -1,4 +1,4 @@
-import { Feather } from "@expo/vector-icons";
+
 
 export const RECURRENCE_OPTIONS = [
   { key: "daily", label: "Daily" },

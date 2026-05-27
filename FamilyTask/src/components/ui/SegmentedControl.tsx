@@ -32,7 +32,7 @@ export function SegmentedControl({ tabs, onChange }: ISegmentedControl) {
             )}
           >
             <Typo
-              style={{ color: isActive ? colors.white : undefined }}
+              style={{ color: isActive ? colors.white : colors.text }}
               className="text-[12px] transition-all duration-200 font-bold tracking-tight"
             >
               {tab.label}

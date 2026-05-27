@@ -64,7 +64,7 @@ export function CreateTaskScreen() {
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 40 }}
+      contentContainerStyle={{ paddingBottom: 80 }}
     >
       <View className="gap-4 p-4">
         {/* HEADER */}

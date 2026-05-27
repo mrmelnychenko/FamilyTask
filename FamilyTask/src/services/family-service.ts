@@ -75,6 +75,7 @@ export type CurrentFamily = {
   families: {
     id: string;
     name: string;
+    avatar_url: string | null;
   };
 } | null;
 
@@ -87,7 +88,8 @@ export async function getCurrentFamily(userId: string): Promise<CurrentFamily> {
       role,
       families (
         id,
-        name
+        name,
+        avatar_url
       )
     `
     )

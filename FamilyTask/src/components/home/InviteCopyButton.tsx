@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { Feather } from '@expo/vector-icons';
@@ -11,7 +11,7 @@ interface IInviteCopyButton {
     inviteCode: string
 }
 
-export function InviteCopyButton({inviteCode}: IInviteCopyButton) {
+export function InviteCopyButton({ inviteCode }: IInviteCopyButton) {
     const { success } = useAppToast()
     const [copied, setCopied] = useState(false);
 
@@ -24,7 +24,7 @@ export function InviteCopyButton({inviteCode}: IInviteCopyButton) {
         success({
             title: 'Copied',
             message: 'Invite code copied to clipboard',
-          });
+        });
         setTimeout(() => {
             setCopied(false);
         }, 1500);
@@ -34,20 +34,15 @@ export function InviteCopyButton({inviteCode}: IInviteCopyButton) {
         <Pressable
             onPress={handleCopy}
             android_ripple={{ color: colors.white }}
-            className="flex-row items-center rounded-2xl border border-primary-light bg-white/10 px-4 py-2.5"
+            className="flex-row items-center justify-between bg-white/20 border-2 border-white/40 px-4 py-3 rounded-full"
         >
-            {/* FIXED WIDTH TEXT WRAPPER */}
-            <View style={{ width: 110 }}>
-                <Typo variant='body' className='text-white'
-                    numberOfLines={1}
-                >
-                    {copied ? 'Copied' : inviteCode}
-                </Typo>
-            </View>
+            <Typo variant='h3' className='text-white' numberOfLines={1}>
+                {copied ? 'Copied!' : inviteCode}
+            </Typo>
 
             <Feather
                 name={copied ? 'check' : 'copy'}
-                size={13}
+                size={16}
                 color={colors.white}
             />
         </Pressable>

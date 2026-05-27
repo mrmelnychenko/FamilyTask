@@ -13,21 +13,37 @@ interface IChip {
 }
 
 export function Chip({ label, active, onPress, icon, color }: IChip) {
-    return (
-      <Pressable
-        onPress={onPress}
+  return (
+    <Pressable
+      onPress={onPress}
+      className={cn(
+        "flex-row items-center gap-2 px-4 py-2 rounded-full border-2",
+        active ? "bg-primary border-primary" : "bg-white border-border"
+      )}
+    >
+      {icon && (
+        <MaterialIcons
+          name={icon}
+          size={18}
+          color={active ? colors.white : colors.muted}
+        />
+      )}
+
+      {color && (
+        <View
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: color }}
+        />
+      )}
+
+      <Typo
         className={cn(
-          "flex-row items-center gap-2 px-4 py-2 rounded-full border-2",
-          active ? "bg-primary/10 border-primary" : "bg-white border-neutral-200"
+          "text-sm font-medium",
+          active ? "text-white" : "text-muted"
         )}
       >
-        {icon && <MaterialIcons name={icon} size={18} color={active ? colors.primary : colors.muted} />}
-  
-        {color && <View className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />}
-  
-        <Typo className={cn("text-sm", active ? "text-primary font-semibold" : "text-muted")}>
-          {label}
-        </Typo>
-      </Pressable>
-    );
-  }
+        {label}
+      </Typo>
+    </Pressable>
+  );
+}

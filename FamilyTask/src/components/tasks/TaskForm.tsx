@@ -17,6 +17,7 @@ import { TaskRecurrence } from "@/src/types/task";
 import { format } from "date-fns";
 import { Avatar } from "../ui/Avatar";
 import { TASK_CATEGORIES, TASK_PRIORITIES } from "@/src/constants/tasks";
+import { Chip } from "../ui/Chip";
 
 type Props = {
   members: FamilyMember[];
@@ -161,22 +162,13 @@ export function TaskForm({ members, currentUserId, canAssignToOthers, loading, e
               {TASK_CATEGORIES.map((cat) => {
                 const isActive = value === cat.key;
                 return (
-                  <Pressable
+                  <Chip
                     key={cat.key}
+                    label={cat.label}
+                    icon={cat.icon}
+                    active={isActive}
                     onPress={() => onChange(cat.key)}
-                    className={cn(
-                      "flex-row items-center gap-1.5 px-3 py-2 rounded-full border",
-                      isActive ? "bg-primary border-primary" : "bg-white border-border"
-                    )}
-                  >
-                    <Typo className="text-[13px]">{cat.emoji}</Typo>
-                    <Typo className={cn(
-                      "text-[12px] font-bold",
-                      isActive ? "text-white" : "text-muted"
-                    )}>
-                      {cat.label}
-                    </Typo>
-                  </Pressable>
+                  />
                 );
               })}
             </View>
@@ -195,22 +187,12 @@ export function TaskForm({ members, currentUserId, canAssignToOthers, loading, e
               {TASK_PRIORITIES.map((p) => {
                 const isActive = value === p.key;
                 return (
-                  <Pressable
+                  <Chip
                     key={p.key}
+                    label={p.label}
+                    active={isActive}
                     onPress={() => onChange(p.key)}
-                    className={cn(
-                      "flex-1 flex-row items-center justify-center gap-1.5 py-3 rounded-full border",
-                      isActive ? "bg-primary border-primary" : "bg-white border-border"
-                    )}
-                  >
-                    <Typo className="text-[13px]">{p.emoji}</Typo>
-                    <Typo className={cn(
-                      "text-[12px] font-bold",
-                      isActive ? "text-white" : "text-muted"
-                    )}>
-                      {p.label}
-                    </Typo>
-                  </Pressable>
+                  />
                 );
               })}
             </View>
