@@ -8,15 +8,16 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from '@/src/utils/colors';
 import { useRouter } from 'expo-router';
 import { useProfile } from '@/src/hooks/queries/useProfile';
+import { useCurrentFamilyRole } from '@/src/hooks/useRole';
 
 export function TeamHeader() {
     const { user } = useAuth();
     const { data: currentFamily } = useCurrentFamily(user?.id);
     const { data: profile } = useProfile(user?.id);
     const router = useRouter();
-    console.log(profile)
+    const { isAdmin } = useCurrentFamilyRole();
     return (
-        <View className="items-center gap-3 mt-6 mb-2">
+        <View className="items-center gap-3 mb-2">
 
             <View className="p-1 rounded-full border-2 border-primary/30">
                 <Avatar
@@ -33,8 +34,8 @@ export function TeamHeader() {
                 </Typo>
             </View>
 
-            {['OWNER', 'ADMIN'].includes(profile?.role ?? '') && (
-                <Pressable
+            {
+                isAdmin && <Pressable
                     onPress={() => router.push('/family/manage')}
                     className="flex-row items-center gap-2 bg-primary px-4 py-2 rounded-full active:opacity-70"
                     style={{
@@ -47,7 +48,8 @@ export function TeamHeader() {
                     <MaterialIcons name="settings" size={18} color={colors.primaryLight} />
                     <Typo variant='body' className='text-white font-semibold'>Settings</Typo>
                 </Pressable>
-            )}
+            }
+
 
         </View>
     );

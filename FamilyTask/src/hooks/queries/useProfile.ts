@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {  getProfile, uploadAvatar } from "../../services/profile-service";
-
+import {
+  getFamilyRole,
+  getProfile,
+  uploadAvatar,
+} from "../../services/profile-service";
 
 export function useProfile(userId?: string) {
   return useQuery({
@@ -10,6 +13,25 @@ export function useProfile(userId?: string) {
     staleTime: 1000 * 30,
     retry: 1,
   });
+}
+
+export function useFamilyRole(
+  familyId?: string | null,
+  userId?: string | null
+) {
+  const { data: role, ...query } = useQuery({
+    queryKey: ["familyRole", familyId, userId],
+    queryFn: () => getFamilyRole(familyId!, userId!),
+    enabled: !!familyId && !!userId,
+    staleTime: 5 * 60 * 1000,
+  });
+  return {
+    ...query,
+    role: role ?? null,
+    isOwner: role === 'OWNER',
+    isAdmin: role === 'ADMIN' || role === 'OWNER',
+    isMember: !!role,                              
+  };
 }
 
 export function useUpdateAvatar() {

@@ -1,6 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { createInvite } from "./invite-service";
 
+
 export type FamilyMemberProfile = {
   id: string;
   name: string;
@@ -17,6 +18,16 @@ export type FamilyMember = {
   created_at: string;
   profiles: FamilyMemberProfile | null;
 };
+
+export async function updateFamilyName(familyId: string, name: string): Promise<void> {
+  const { error } = await supabase
+    .from('families')
+    .update({ name })
+    .eq('id', familyId);
+
+  if (error) throw error;
+}
+
 
 export async function createFamilyService({
   name,
@@ -39,6 +50,42 @@ export async function createFamilyService({
 
   return { family, inviteCode: invite.invite_code };
 }
+
+export async function uploadFamilyAvatar(familyId: string, fileUri: string) {
+  const fileName = `${Date.now()}.jpg`;
+  const filePath = `${familyId}/${fileName}`;
+
+  const response = await fetch(fileUri);
+  const arrayBuffer = await response.arrayBuffer();
+
+  console.log("SIZE:", arrayBuffer.byteLength);
+
+  if (!arrayBuffer.byteLength) {
+    throw new Error("Empty image buffer (iOS issue)");
+  }
+
+  const { error } = await supabase.storage
+    .from("family-avatars")
+    .upload(filePath, arrayBuffer, {
+      contentType: "image/jpeg",
+      upsert: true,
+    });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage
+    .from("family-avatars")
+    .getPublicUrl(filePath);
+  const { error: updateError } = await supabase
+    .from("families")
+    .update({ avatar_url: data.publicUrl })
+    .eq("id", familyId);
+
+  if (updateError) throw updateError;
+
+  return data.publicUrl;
+}
+
 export async function joinFamilyService({
   code,
   userId,
@@ -136,9 +183,9 @@ export async function getFamilyLeaderboard(
   familyId: string,
   period: "week" | "month" | "all"
 ) {
-  const { data, error } = await supabase.rpc("get_family_leaderboard", { 
-    p_family_id: familyId, 
-    p_period: period   
+  const { data, error } = await supabase.rpc("get_family_leaderboard", {
+    p_family_id: familyId,
+    p_period: period,
   });
   if (error) throw new Error(error.message);
 

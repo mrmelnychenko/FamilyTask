@@ -13,10 +13,14 @@ export function FamilyScreen() {
     return (
         <View className="flex-1">
             <ScrollView
-                contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 20, }}
+                contentInsetAdjustmentBehavior="never"
+                contentContainerStyle={{
+                    paddingBottom: 120,
+                    paddingHorizontal: 20,
+                }}
                 showsVerticalScrollIndicator={false}
             >
-                
+
                 <TeamHeader />
                 <SquadMembers />
                 <InviteCard />

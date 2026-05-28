@@ -31,6 +31,7 @@ export function SquadMembers() {
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={{ paddingBottom: 16, gap: 12 }}
                 showsVerticalScrollIndicator={false}
+                scrollEnabled={false}
                 renderItem={({ item, index }) => (
                     <FamilyMemberCard member={item} rank={index + 1} />
                 )}

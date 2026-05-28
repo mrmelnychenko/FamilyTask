@@ -1,20 +1,29 @@
 import { ScreenLayout } from "@/src/components/ui/layout/ScreenLayout";
+import { FamilyEditAvatar } from "@/src/components/ui/manage/FamilyEditAvatar";
+import { FamilyEditName } from "@/src/components/ui/manage/FamilyEditName";
+import { useCurrentFamilyRole } from "@/src/hooks/useRole";
 import { colors } from "@/src/utils/colors";
-import { Stack } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Redirect, Stack } from "expo-router";
+import { View } from "react-native";
+
 
 export default function ManageScreen() {
-    const insets = useSafeAreaInsets();
+    const { isAdmin } = useCurrentFamilyRole()
+    console.log(isAdmin)
+    if (!isAdmin) return <Redirect href="/(protected)/(tabs)/family" />
     return (
         <>
             <Stack.Screen options={{ headerShown: false }} />
             <ScreenLayout
-                style={{ paddingTop: insets.top, backgroundColor: colors.primaryLight }}
+                style={{ backgroundColor: colors.primaryLight }}
                 showBack
                 backHref="/(protected)/(tabs)/family"
                 title={"Family Settings"}
-                >
-
+            >
+                <View className="flex-1 flrx-col gap-4">
+                    <FamilyEditAvatar />
+                    <FamilyEditName />
+                </View>
             </ScreenLayout>
         </>
     );

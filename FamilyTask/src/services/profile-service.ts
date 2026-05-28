@@ -13,6 +13,22 @@ export async function getProfile(userId: string) {
   return data;
 }
 
+type FamilyRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+
+export async function getFamilyRole(
+  familyId: string,
+  userId: string
+): Promise<FamilyRole | null> {
+  const { data, error } = await supabase
+    .from('family_members')
+    .select('role')
+    .eq('family_id', familyId)
+    .eq('user_id', userId)
+    .single();
+
+  if (error || !data) return null;
+  return data.role as FamilyRole;
+}
 
 
 export async function uploadAvatar(userId: string, fileUri: string): Promise<string> {
