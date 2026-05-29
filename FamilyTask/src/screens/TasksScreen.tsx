@@ -62,7 +62,6 @@ export function TasksScreen() {
         setFilters(newFilters);
         closeFilters();
     };
-    console.log(filteredTasks, 'filteredTasks')
 
     return (
         <View className="flex-1">
@@ -118,12 +117,12 @@ export function TasksScreen() {
 
             {/* only for mobile  !important */}
             {/* FILTER SHEET */}
-            {/* <FilterTaskBottom
+            <FilterTaskBottom
                     visible={filterVisible}
                     initialFilters={filters}
                     onClose={closeFilters}
                     onApply={handleApplyFilters}
-                /> */}
+                />
 
         </View>
     )

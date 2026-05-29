@@ -25,7 +25,7 @@ export function Button({
 
   const variantStyles = {
     primary: "bg-primary",
-    secondary: "bg-primary-dark",
+    secondary: "bg-primary-light",
     danger: "bg-red-500",
   };
 

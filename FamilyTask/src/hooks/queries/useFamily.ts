@@ -5,7 +5,9 @@ import {
   getFamilyLeaderboard,
   getFamilyMembers,
   joinFamilyService,
+  removeFamilyMember,
   updateFamilyName,
+  updateMemberRole,
   uploadFamilyAvatar,
 } from "@/src/services/family-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -92,6 +94,41 @@ export function useFamilyMembers(familyId?: string) {
     queryKey: ["family-members", familyId],
     queryFn: () => getFamilyMembers(familyId!),
     enabled: !!familyId,
+  });
+}
+
+export function useUpdateMemberRole() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+      mutationFn: ({
+          memberId,
+          role,
+      }: {
+          memberId: string;
+          role: 'ADMIN' | 'MEMBER';
+      }) => updateMemberRole(memberId, role),
+
+      onSuccess: () => {
+          queryClient.invalidateQueries({
+              queryKey: ['family-members'],
+          });
+      },
+  });
+}
+
+export function useRemoveMember() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+      mutationFn: (memberId: string) =>
+          removeFamilyMember(memberId),
+
+      onSuccess: () => {
+          queryClient.invalidateQueries({
+              queryKey: ['family-members'],
+          });
+      },
   });
 }
 

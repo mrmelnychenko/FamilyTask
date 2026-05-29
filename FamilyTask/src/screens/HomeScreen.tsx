@@ -25,7 +25,6 @@ export function HomeScreen() {
     data: myTodayTasks = [],
     isError: isTasksError,
   } = useMyTodayTasks(user?.id!);
-console.log(myTodayTasks)
   return (
     <View className="flex-1">
       <ScrollView

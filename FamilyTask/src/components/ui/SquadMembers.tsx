@@ -17,7 +17,6 @@ export function SquadMembers() {
           (a, b) => (b.profiles?.xp ?? 0) - (a.profiles?.xp ?? 0)
         );
       }, [members]);
-    console.log(members)
     return (
         <View className="flex-col gap-3 mt-6">
             <View className="flex-row gap-3">

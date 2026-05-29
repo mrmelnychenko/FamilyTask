@@ -14,9 +14,9 @@ export type FamilyMemberProfile = {
 
 export type FamilyMember = {
   id: string;
-  role: string | null;
+  role: string;
   created_at: string;
-  profiles: FamilyMemberProfile | null;
+  profiles: FamilyMemberProfile;
 };
 
 export async function updateFamilyName(familyId: string, name: string): Promise<void> {
@@ -58,7 +58,6 @@ export async function uploadFamilyAvatar(familyId: string, fileUri: string) {
   const response = await fetch(fileUri);
   const arrayBuffer = await response.arrayBuffer();
 
-  console.log("SIZE:", arrayBuffer.byteLength);
 
   if (!arrayBuffer.byteLength) {
     throw new Error("Empty image buffer (iOS issue)");
@@ -177,6 +176,33 @@ export async function getFamilyMembers(
   if (error) throw new Error(error.message);
 
   return (data ?? []) as unknown as FamilyMember[];
+}
+
+export async function updateMemberRole(
+  memberId: string,
+  role: 'ADMIN' | 'MEMBER'
+) {
+  const { data, error } = await supabase
+      .from('family_members')
+      .update({ role })
+      .eq('id', memberId)
+      .select()
+      .single();
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function removeFamilyMember(memberId: string) {
+  const { error } = await supabase
+      .from('family_members')
+      .delete()
+      .eq('id', memberId);
+
+  if (error) throw error;
+
+  return true;
 }
 
 export async function getFamilyLeaderboard(

@@ -34,7 +34,7 @@ export function InviteCopyButton({ inviteCode }: IInviteCopyButton) {
         <Pressable
             onPress={handleCopy}
             android_ripple={{ color: colors.white }}
-            className="flex-row items-center justify-between bg-white/20 border-2 border-white/40 px-4 py-3 rounded-full"
+            className="flex-row items-center gap-3 justify-between bg-white/20 border-2 border-white/40 px-4 py-3 rounded-full"
         >
             <Typo variant='h3' className='text-white' numberOfLines={1}>
                 {copied ? 'Copied!' : inviteCode}

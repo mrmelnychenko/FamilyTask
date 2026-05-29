@@ -17,7 +17,7 @@ export function TeamHeader() {
     const router = useRouter();
     const { isAdmin } = useCurrentFamilyRole();
     return (
-        <View className="items-center gap-3 mb-2">
+        <View className="items-center gap-3 mt-6 mb-2">
 
             <View className="p-1 rounded-full border-2 border-primary/30">
                 <Avatar

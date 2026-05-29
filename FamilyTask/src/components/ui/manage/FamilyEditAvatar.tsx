@@ -26,7 +26,6 @@ export function FamilyEditAvatar() {
       });
   
       if (!result.canceled && result.assets[0]?.uri && currentFamily?.family_id) {
-        console.log(result.assets[0]?.uri)
         updateAvatar({
           familyId: currentFamily.family_id,
           fileUri: result.assets[0].uri,

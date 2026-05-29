@@ -7,6 +7,11 @@ interface ICreateInvite {
   familyId: string;
 }
 
+interface IRegenerateInvite {
+  familyId: string;
+}
+
+
 export async function createInvite({
   userId,
   familyId,
@@ -22,6 +27,27 @@ export async function createInvite({
     .select()
     .single();
   if (error) throw error;
+
+  return data;
+}
+
+export async function regenerateNewInviteCode({
+  familyId,
+}: IRegenerateInvite): Promise<IInvite> {
+  const inviteCode = generateInviteCode();
+  const { data, error } = await supabase
+    .from("invites")
+    .update({
+      invite_code: inviteCode,
+    })
+    .eq("family_id", familyId)
+    .select()
+    .maybeSingle();
+  if (error) throw error;
+
+  if (!data) {
+    throw new Error("Invite not found");
+  }
 
   return data;
 }

@@ -17,7 +17,6 @@ type Props = {
 
 export function TaskCard({ task, selectedDate }: Props) {
   const { user } = useAuth();
-  console.log(task)
   const { mutate: complete, isPending: isCompleting } = useCompleteTask();
   const { mutate: uncomplete, isPending: isUncompleting } = useUncompleteTask();
 

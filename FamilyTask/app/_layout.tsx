@@ -12,6 +12,7 @@ import Toast from 'react-native-toast-message';
 import { RootSiblingParent } from 'react-native-root-siblings';
 import { toastConfig } from '@/src/components/toast/ToastConfig';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
@@ -42,11 +43,16 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <RootSiblingParent>
         <AuthProvider>
-        <GestureHandlerRootView style={{ flex: 1 }}>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <BottomSheetModalProvider>
 
-            <RootLayoutNav />
-            <Toast config={toastConfig} />
-        </GestureHandlerRootView>
+
+
+              <RootLayoutNav />
+              <Toast config={toastConfig} />
+              
+            </BottomSheetModalProvider>
+          </GestureHandlerRootView>
         </AuthProvider>
       </RootSiblingParent>
     </QueryClientProvider>
