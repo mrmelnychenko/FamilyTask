@@ -1,7 +1,7 @@
 export interface IProfile {
     id: string;
-    email: string | null;
-    name: string | null;
+    email: string;
+    name: string;
     avatar_emoji: string;
     avatar_url: string | null;
     role: "OWNER" | "ADMIN" | "MEMBER";

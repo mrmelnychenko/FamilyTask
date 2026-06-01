@@ -2,6 +2,7 @@ import {
   completeTask,
   createTaskService,
   deleteTask,
+  getCompletedTasksCount,
   getMyTodayTasks,
   getTasks,
   uncompleteTask,
@@ -84,5 +85,14 @@ export function useDeleteTask() {
   return useMutation({
     mutationFn: (taskId: string) => deleteTask(taskId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+  });
+}
+
+
+export function useCompletedTasksCount(userId: string) {
+  return useQuery({
+    queryKey: ["completed-tasks-count", userId],
+    enabled: !!userId,
+    queryFn: () => getCompletedTasksCount(userId!),
   });
 }

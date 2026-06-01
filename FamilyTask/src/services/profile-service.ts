@@ -1,5 +1,5 @@
 import { supabase } from "../lib/supabase";
-import { File } from 'expo-file-system/next';
+import { File } from "expo-file-system/next";
 
 export async function getProfile(userId: string) {
   const { data, error } = await supabase
@@ -13,39 +13,45 @@ export async function getProfile(userId: string) {
   return data;
 }
 
-type FamilyRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+type FamilyRole = "OWNER" | "ADMIN" | "MEMBER";
 
 export async function getFamilyRole(
   familyId: string,
   userId: string
 ): Promise<FamilyRole | null> {
   const { data, error } = await supabase
-    .from('family_members')
-    .select('role')
-    .eq('family_id', familyId)
-    .eq('user_id', userId)
+    .from("family_members")
+    .select("role")
+    .eq("family_id", familyId)
+    .eq("user_id", userId)
     .single();
 
   if (error || !data) return null;
   return data.role as FamilyRole;
 }
 
-
-export async function uploadAvatar(userId: string, fileUri: string): Promise<string> {
+export async function uploadAvatar(
+  userId: string,
+  fileUri: string
+): Promise<string> {
   const fileName = `${Date.now()}.jpg`;
   const filePath = `${userId}/${fileName}`;
 
-  const file = new File(fileUri);
-  const bytes = await file.bytes();
+  const response = await fetch(fileUri);
+  const arrayBuffer = await response.arrayBuffer();
 
-  const { error: uploadError } = await supabase.storage
+  if (!arrayBuffer.byteLength) {
+    throw new Error("Empty image buffer (iOS issue)");
+  }
+
+  const { error } = await supabase.storage
     .from("avatars")
-    .upload(filePath, bytes, {
+    .upload(filePath, arrayBuffer, {
       contentType: "image/jpeg",
       upsert: true,
     });
 
-  if (uploadError) throw uploadError;
+  if (error) throw error;
 
   const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
 

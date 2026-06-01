@@ -10,6 +10,7 @@ export function FamilyEditAvatar() {
     const {user} = useAuth()
     const { data: currentFamily } = useCurrentFamily(user?.id);
     const { mutate: updateAvatar, isPending } = useUpdateFamilyAvatar();
+    
     const handlePickImage = async () => {
       const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
   

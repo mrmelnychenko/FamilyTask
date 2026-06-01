@@ -19,3 +19,15 @@ export function getLevel(xp: number) {
       nextLevelXP: required,
     };
   }
+
+
+  export function getLevelTitle(level: number) {
+    if (level < 5) return "Bronze";
+    if (level < 10) return "Silver";
+    if (level < 20) return "Gold";
+    if (level < 30) return "Platinum";
+    if (level < 40) return "Diamond";
+    if (level < 50) return "Master";
+  
+    return "Grandmaster";
+  }

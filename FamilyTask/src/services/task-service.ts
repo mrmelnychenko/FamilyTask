@@ -45,8 +45,8 @@ export async function getTasks(familyId: string, date: Date): Promise<ITask[]> {
         .eq("is_recurring", true)
         .or(
           `recurrence.eq.daily,` +
-          `and(recurrence.eq.weekly,recurrence_days.cs.{${dayOfWeek}}),` +
-          `and(recurrence.eq.monthly,recurrence_days.cs.{${dayOfMonth}})`
+            `and(recurrence.eq.weekly,recurrence_days.cs.{${dayOfWeek}}),` +
+            `and(recurrence.eq.monthly,recurrence_days.cs.{${dayOfMonth}})`
         )
         .or(`recurrence_end_date.is.null,recurrence_end_date.gte.${from}`),
     ]);
@@ -82,8 +82,8 @@ export async function getMyTodayTasks(userId: string): Promise<ITask[]> {
         .eq("is_recurring", true)
         .or(
           `recurrence.eq.daily,` +
-          `and(recurrence.eq.weekly,recurrence_days.cs.{${dayOfWeek}}),` +
-          `and(recurrence.eq.monthly,recurrence_days.cs.{${dayOfMonth}})`
+            `and(recurrence.eq.weekly,recurrence_days.cs.{${dayOfWeek}}),` +
+            `and(recurrence.eq.monthly,recurrence_days.cs.{${dayOfMonth}})`
         )
         .or(`recurrence_end_date.is.null,recurrence_end_date.gte.${from}`),
     ]);
@@ -92,8 +92,23 @@ export async function getMyTodayTasks(userId: string): Promise<ITask[]> {
 
   return [...(onetime ?? []), ...(recurring ?? [])] as unknown as ITask[];
 }
+export async function getCompletedTasksCount(userId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("task_completions")
+    .select("*", {
+      count: "exact",
+      head: true,
+    })
+    .eq("user_id", userId);
 
-export async function createTaskService(params: CreateTaskParams): Promise<void> {
+  if (error) throw error;
+
+  return count ?? 0;
+}
+
+export async function createTaskService(
+  params: CreateTaskParams
+): Promise<void> {
   const deadline =
     !params.is_recurring && params.dueDate
       ? `${params.dueDate}T${params.dueTime ?? "23:59"}:00`
@@ -108,7 +123,8 @@ export async function createTaskService(params: CreateTaskParams): Promise<void>
     deadline,
     priority: params.priority,
     category: params.category,
-    xp_reward: params.priority === "high" ? 15 : params.priority === "normal" ? 10 : 5,
+    xp_reward:
+      params.priority === "high" ? 15 : params.priority === "normal" ? 10 : 5,
     is_recurring: params.is_recurring,
     recurrence: params.recurrence ?? null,
     recurrence_days: params.recurrence_days ?? null,
@@ -127,7 +143,6 @@ export async function completeTask(
   const isRecurring = !!recurringDate;
 
   await Promise.all([
-
     supabase.from("task_completions").insert({
       task_id: taskId,
       user_id: userId,
@@ -135,7 +150,6 @@ export async function completeTask(
       recurring_date: recurringDate ?? null,
     }),
 
-  
     !isRecurring
       ? supabase.from("tasks").update({ status: "DONE" }).eq("id", taskId)
       : Promise.resolve(),
