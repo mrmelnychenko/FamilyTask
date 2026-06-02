@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
-import { File } from "expo-file-system/next";
+import { IUpdateProfile } from "../types/profile";
+
 
 export async function getProfile(userId: string) {
   const { data, error } = await supabase
@@ -63,4 +64,25 @@ export async function uploadAvatar(
   if (updateError) throw updateError;
 
   return data.publicUrl;
+}
+
+
+export async function updateProfile({
+  userId,
+  name,
+  email,
+}: IUpdateProfile) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({
+      name,
+      email,
+    })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  return data;
 }

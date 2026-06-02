@@ -9,3 +9,10 @@ export interface IProfile {
     streak: number;
     created_at: string;
   };
+
+  
+export interface IUpdateProfile {
+  userId: string;
+  name: string;
+  email: string;
+}
