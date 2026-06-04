@@ -11,7 +11,7 @@ export default function PasswordProfileScreen() {
             <ScreenLayout
                 style={{ backgroundColor: colors.primaryLight }}
                 showBack
-                backHref="/profile/manage"
+                backHref="/profile/account/manage"
                 title={"Change Password"}
             >
                 <View className="flex-1 flex-col gap-4">

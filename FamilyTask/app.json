@@ -49,7 +49,8 @@
             "./assets/fonts/Nunito-ExtraBold.ttf"
           ]
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

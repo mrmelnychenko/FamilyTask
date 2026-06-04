@@ -122,7 +122,7 @@ export function ProfileEditInformation() {
 
                 <Pressable
                     className="flex-row items-center justify-between bg-white border border-border rounded-2xl p-4 active:opacity-70"
-                    onPress={() => router.push("/profile/password")}
+                    onPress={() => router.push("/profile/account/password")}
                 >
                     <View className="flex-row items-center gap-3">
                         <MaterialIcons

@@ -11,7 +11,10 @@ export function ProfileActionButton() {
     const { signOut } = useAuth();
 
     const handleEdit = () => {
-        router.push("/profile/manage");
+        router.push("/profile/account/manage");
+    };
+    const handleSettings = () => {
+        router.push("/profile/settings" as any);
     };
 
     const handleLogout = async () => {
@@ -24,6 +27,12 @@ export function ProfileActionButton() {
                 <MaterialIcons name="edit" size={20} color={colors.white} />
                 <Typo className="text-white font-bold">
                     Edit Profile
+                </Typo>
+            </Button>
+            <Button variant="primary" onPress={handleSettings}>
+                <MaterialIcons name="settings" size={20} color={colors.white} />
+                <Typo className="text-white font-bold">
+                    Settings Account
                 </Typo>
             </Button>
 

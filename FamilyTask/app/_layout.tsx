@@ -13,18 +13,24 @@ import { RootSiblingParent } from 'react-native-root-siblings';
 import { toastConfig } from '@/src/components/toast/ToastConfig';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import '@/i18next/index';
+import { useLanguageBootstrap } from '@/src/hooks/useInitLanguage';
+
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
   const { loading } = useAuth();
+  const languageReady = useLanguageBootstrap();
 
-  useEffect(() => {
-    if (!loading) {
-      SplashScreen.hideAsync();
-    }
-  }, [loading]);
+useEffect(() => {
+  if (!loading && languageReady) {
+    SplashScreen.hideAsync();
+  }
+}, [loading, languageReady]);
 
-  if (loading) return null;
+  if (loading || !languageReady) {
+    return null;
+  }
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }
@@ -37,11 +43,13 @@ export default function RootLayout() {
   });
 
 
+
   if (!loaded && !error) return null;
 
   return (
     <QueryClientProvider client={queryClient}>
       <RootSiblingParent>
+
         <AuthProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <BottomSheetModalProvider>
@@ -50,7 +58,7 @@ export default function RootLayout() {
 
               <RootLayoutNav />
               <Toast config={toastConfig} />
-              
+
             </BottomSheetModalProvider>
           </GestureHandlerRootView>
         </AuthProvider>

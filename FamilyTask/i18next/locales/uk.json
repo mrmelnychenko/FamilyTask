@@ -1,0 +1,62 @@
+{
+    "common": {
+        "loading": "Завантаження...",
+        "error": "Щось пішло не так",
+        "retry": "Спробувати знову",
+        "save": "Зберегти",
+        "cancel": "Скасувати",
+        "confirm": "Підтвердити",
+        "delete": "Видалити",
+        "edit": "Редагувати",
+        "back": "Назад",
+        "next": "Далі",
+        "done": "Готово",
+        "yes": "Так",
+        "no": "Ні",
+        "search": "Пошук",
+        "noResults": "Результатів не знайдено"
+    },
+    "auth": {
+        "signIn": "Увійти",
+        "signUp": "Зареєструватися",
+        "signOut": "Вийти",
+        "email": "Електронна пошта",
+        "password": "Пароль",
+        "confirmPassword": "Підтвердіть пароль",
+        "forgotPassword": "Забули пароль?",
+        "resetPassword": "Скинути пароль",
+        "emailPlaceholder": "Введіть вашу пошту",
+        "passwordPlaceholder": "Введіть ваш пароль",
+        "noAccount": "Немає акаунту?",
+        "haveAccount": "Вже маєте акаунт?",
+        "errors": {
+            "invalidEmail": "Будь ласка, введіть коректну пошту",
+            "passwordTooShort": "Пароль має містити щонайменше 8 символів",
+            "passwordMismatch": "Паролі не збігаються",
+            "signInFailed": "Помилка входу. Перевірте дані.",
+            "signUpFailed": "Помилка реєстрації. Спробуйте ще раз."
+        }
+    },
+    "profile": {
+        "title": "Профіль",
+        "name": "Повне ім'я",
+        "language": "Мова",
+        "settings": "Налаштування",
+        "editProfile": "Редагувати профіль",
+        "saveChanges": "Зберегти зміни",
+        "changesSaved": "Зміни успішно збережено"
+    },
+    "settings": {
+        "title": "Налаштування",
+        "language": "Мова",
+        "chooseLanguage": "Оберіть мову",
+        "notifications": "Сповіщення",
+        "privacy": "Конфіденційність",
+        "about": "Про додаток"
+    },
+    "languages": {
+        "en": "Англійська",
+        "uk": "Українська",
+        "de": "Німецька"
+    }
+}

@@ -1,0 +1,62 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "Something went wrong",
+        "retry": "Try again",
+        "save": "Save",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "delete": "Delete",
+        "edit": "Edit",
+        "back": "Back",
+        "next": "Next",
+        "done": "Done",
+        "yes": "Yes",
+        "no": "No",
+        "search": "Search",
+        "noResults": "No results found"
+    },
+    "auth": {
+        "signIn": "Sign In",
+        "signUp": "Sign Up",
+        "signOut": "Sign Out",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "forgotPassword": "Forgot Password?",
+        "resetPassword": "Reset Password",
+        "emailPlaceholder": "Enter your email",
+        "passwordPlaceholder": "Enter your password",
+        "noAccount": "Don't have an account?",
+        "haveAccount": "Already have an account?",
+        "errors": {
+            "invalidEmail": "Please enter a valid email",
+            "passwordTooShort": "Password must be at least 8 characters",
+            "passwordMismatch": "Passwords do not match",
+            "signInFailed": "Sign in failed. Check your credentials.",
+            "signUpFailed": "Sign up failed. Please try again."
+        }
+    },
+    "profile": {
+        "title": "Profile",
+        "name": "Full Name",
+        "language": "Language",
+        "settings": "Settings",
+        "editProfile": "Edit Profile",
+        "saveChanges": "Save Changes",
+        "changesSaved": "Changes saved successfully"
+    },
+    "settings": {
+        "title": "Settings",
+        "language": "Language",
+        "chooseLanguage": "Choose Language",
+        "notifications": "Notifications",
+        "privacy": "Privacy",
+        "about": "About"
+    },
+    "languages": {
+        "en": "English",
+        "uk": "Ukrainian",
+        "de": "German"
+    }
+}
