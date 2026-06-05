@@ -106,32 +106,40 @@ export async function getCompletedTasksCount(userId: string): Promise<number> {
   return count ?? 0;
 }
 
-export async function createTaskService(
-  params: CreateTaskParams
-): Promise<void> {
+export async function createTaskService(params: CreateTaskParams) {
   const deadline =
     !params.is_recurring && params.dueDate
       ? `${params.dueDate}T${params.dueTime ?? "23:59"}:00`
       : null;
 
-  const { error } = await supabase.from("tasks").insert({
-    family_id: params.familyId,
-    created_by: params.creatorId,
-    assigned_to: params.assigneeId,
-    title: params.title,
-    description: params.description ?? null,
-    deadline,
-    priority: params.priority,
-    category: params.category,
-    xp_reward:
-      params.priority === "high" ? 15 : params.priority === "normal" ? 10 : 5,
-    is_recurring: params.is_recurring,
-    recurrence: params.recurrence ?? null,
-    recurrence_days: params.recurrence_days ?? null,
-    recurrence_end_date: params.recurrence_end_date ?? null,
-  });
+  const { data, error } = await supabase
+    .from("tasks")
+    .insert({
+      family_id: params.familyId,
+      created_by: params.creatorId,
+      assigned_to: params.assigneeId,
+      title: params.title,
+      description: params.description ?? null,
+      deadline,
+      priority: params.priority,
+      category: params.category,
+      xp_reward:
+        params.priority === "high"
+          ? 15
+          : params.priority === "normal"
+          ? 10
+          : 5,
+      is_recurring: params.is_recurring,
+      recurrence: params.recurrence ?? null,
+      recurrence_days: params.recurrence_days ?? null,
+      recurrence_end_date: params.recurrence_end_date ?? null,
+    })
+    .select()
+    .single();
 
   if (error) throw error;
+
+  return data;
 }
 
 export async function completeTask(

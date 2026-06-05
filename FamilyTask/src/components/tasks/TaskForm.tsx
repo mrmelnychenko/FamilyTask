@@ -18,17 +18,22 @@ import { format } from "date-fns";
 import { Avatar } from "../ui/Avatar";
 import { TASK_CATEGORIES, TASK_PRIORITIES } from "@/src/constants/tasks";
 import { Chip } from "../ui/Chip";
+import { useCurrentFamilyRole } from "@/src/hooks/useRole";
 
 type Props = {
   members: FamilyMember[];
   currentUserId: string;
-  canAssignToOthers: boolean;
   loading?: boolean;
   error?: string | null;
   onSubmit: (data: TaskFormData) => void;
 };
 
-export function TaskForm({ members, currentUserId, canAssignToOthers, loading, error, onSubmit }: Props) {
+export function TaskForm({ members, currentUserId, loading, error, onSubmit }: Props) {
+  console.log(members, '3333333333333')
+  const { isAdmin, isOwner } = useCurrentFamilyRole()
+
+const canAssignToOthers = isAdmin || isOwner
+
   const {
     control,
     handleSubmit,
@@ -59,7 +64,6 @@ export function TaskForm({ members, currentUserId, canAssignToOthers, loading, e
   const assignableMembers = canAssignToOthers
     ? members
     : members.filter((m) => m.profiles?.id === currentUserId);
-
   const WEEK_DAYS = [
     { label: "Пн", value: 1 },
     { label: "Вт", value: 2 },
@@ -77,7 +81,7 @@ export function TaskForm({ members, currentUserId, canAssignToOthers, loading, e
       : [...current, day];
     setValue("recurrence_days", next);
   };
-
+console.log(assignableMembers, 'assignableMembersassignableMembers')
   return (
     <View className="gap-4">
 

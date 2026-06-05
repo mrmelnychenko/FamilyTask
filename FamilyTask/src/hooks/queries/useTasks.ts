@@ -8,6 +8,7 @@ import {
   uncompleteTask,
 } from "@/src/services/task-service";
 import { CreateTaskParams } from "@/src/types/task";
+import { createTaskUseCase } from "@/src/use-cases/task-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { format } from "date-fns";
@@ -30,9 +31,13 @@ export function useMyTodayTasks(userId?: string) {
 
 export function useCreateTask() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (params: CreateTaskParams) => createTaskService(params),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
   });
 }
 

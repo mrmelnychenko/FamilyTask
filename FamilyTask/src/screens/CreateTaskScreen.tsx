@@ -34,9 +34,6 @@ export function CreateTaskScreen() {
   const { mutateAsync: createTask, isPending } = useCreateTask();
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const canAssignToOthers =
-    profile?.role === "OWNER" || profile?.role === "ADMIN";
-
   async function onSubmit(data: TaskFormData) {
     if (!family?.family_id || !profile?.id) return;
     setSubmitError(null);
@@ -92,7 +89,6 @@ export function CreateTaskScreen() {
           <TaskForm
             members={members}
             currentUserId={user?.id ?? ""}
-            canAssignToOthers={canAssignToOthers}
             loading={isPending}
             error={submitError}
             onSubmit={onSubmit}
