@@ -5,7 +5,7 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { useProfile } from "@/src/hooks/queries/useProfile";
 import { cn } from "@/src/utils/cn";
 import { colors } from "@/src/utils/colors";
-import { router } from "expo-router";
+import { router, usePathname } from "expo-router";
 import { useUnreadNotificationsCount } from "@/src/hooks/queries/useNotification";
 
 export function AppHeader() {
@@ -14,7 +14,8 @@ export function AppHeader() {
   const { data: unreadCount = 0 } =
     useUnreadNotificationsCount(user?.id);
 
-console.log(unreadCount, 'unreadCountunreadCountunreadCount')
+  const pathname = usePathname();
+
   return (
     <View
       className="flex-row items-center justify-between px-5 py-4 bg-primary  border-b border-black/5"
@@ -26,7 +27,10 @@ console.log(unreadCount, 'unreadCountunreadCountunreadCount')
           "w-10 h-10 items-center justify-center rounded-full transition-all active:scale-95",
           "bg-white/80 border border-white/40 shadow-sm"
         )}
-        onPress={() => router.push('/(protected)/notification/notification')}
+        onPress={() => router.push({
+          pathname: '/(protected)/notification/notification',
+          params: { from: pathname }
+      })}
       >
         <Feather
           name="bell"

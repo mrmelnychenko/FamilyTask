@@ -18,12 +18,7 @@ import { TaskForm } from "../components/tasks/TaskForm";
 
 
 function goBackOrHome() {
-  if (router.canGoBack()) {
-    router.back();
-    return;
-  }
-
-  router.replace("/home");
+  router.replace("/(protected)/(tabs)/home");
 }
 
 export function CreateTaskScreen() {
@@ -46,7 +41,7 @@ export function CreateTaskScreen() {
         description: data.description?.trim() || null,
         dueDate: data.is_recurring ? null : data.dueDate,
         dueTime: data.is_recurring ? null : data.dueTime,
-        priority: data.priority, 
+        priority: data.priority,
         category: data.category,
         is_recurring: data.is_recurring,
         recurrence: data.is_recurring ? data.recurrence : null,

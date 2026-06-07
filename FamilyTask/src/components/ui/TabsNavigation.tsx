@@ -45,7 +45,7 @@ export function TabsNavigation() {
               <Pressable
                 key={tab.href}
                 onPress={() =>
-                  router.push(tab.href as Href)
+                  router.replace(tab.href as Href)
                 }
                 className="flex-1 items-center gap-1 rounded-full py-2"
                 style={{

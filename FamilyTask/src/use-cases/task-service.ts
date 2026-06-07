@@ -9,7 +9,7 @@ export async function createTaskUseCase(params: CreateTaskParams) {
   await createNotification({
     userId: params.assigneeId,
     type: NotificationType.TASK_ASSIGNED,
-    title: "Нова задача",
+    title: "New Title",
     body: params.title,
   });
 

@@ -15,7 +15,7 @@ export const TABS = [
     {
         label: 'Add',
         icon: (color: string) => <Feather name="plus" size={18} color={color} />,
-        href: '/(protected)/create-task',
+        href: '/(protected)/(tabs)/create-task',
     },
     {
         label: 'Family',

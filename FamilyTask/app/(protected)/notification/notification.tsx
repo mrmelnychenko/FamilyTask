@@ -1,16 +1,13 @@
 import { ScreenLayout } from "@/src/components/ui/layout/ScreenLayout";
 import { useMarkNotificationAsRead, useNotifications } from "@/src/hooks/queries/useNotification";
 import { useAuth } from "@/src/hooks/useAuth";
-import { useNotificationsRealtime } from "@/src/hooks/useNotification";
-import { supabase } from "@/src/lib/supabase";
 import { colors } from "@/src/utils/colors";
-import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import { Href, Stack, useLocalSearchParams } from "expo-router";
 import { FlatList, Pressable, Text, View } from "react-native";
 
 export default function NotificationScreen() {
     const { user } = useAuth()
-
+    const { from } = useLocalSearchParams<{ from?: string }>();
     const { data: notifications = [], isLoading } =
         useNotifications(user?.id)
 
@@ -32,35 +29,31 @@ export default function NotificationScreen() {
         <>
             <Stack.Screen options={{ headerShown: false }} />
             <ScreenLayout
+                scrollable={false}
                 style={{ backgroundColor: colors.primaryLight }}
                 showBack
-                backHref="/(protected)/(tabs)/family"
-                title={"Notification"}
+                backHref={(from || "/(protected)/(tabs)/home") as Href}
+                title="Notification"
             >
-                <View className="flex-1 flex-col gap-4">
-                    <FlatList
-                        data={notifications}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => (
-                            <Pressable
-                                onPress={() => markAsRead(item.id)}
-                                style={{
-                                    padding: 12,
-                                    marginBottom: 10,
-                                    backgroundColor: item.is_read ? "#eee" : "#fff",
-                                    borderRadius: 12,
-                                }}
-                            >
-                                <Text style={{ fontWeight: "bold" }}>
-                                    {item.title}
-                                </Text>
-                                <Text>{item.body}</Text>
-                            </Pressable>
-                        )}
-                    />
-                </View>
-
-
+                <FlatList
+                    data={notifications}
+                    keyExtractor={(item) => item.id}
+                    contentContainerStyle={{ padding: 16 }}
+                    renderItem={({ item }) => (
+                        <Pressable
+                            onPress={() => markAsRead(item.id)}
+                            style={{
+                                padding: 12,
+                                marginBottom: 10,
+                                backgroundColor: item.is_read ? "#eee" : "#fff",
+                                borderRadius: 12,
+                            }}
+                        >
+                            <Text style={{ fontWeight: "bold" }}>{item.title}</Text>
+                            <Text>{item.body}</Text>
+                        </Pressable>
+                    )}
+                />
             </ScreenLayout>
         </>
     );
