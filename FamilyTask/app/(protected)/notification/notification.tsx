@@ -1,4 +1,5 @@
 import { ScreenLayout } from "@/src/components/ui/layout/ScreenLayout";
+import { NotificationItem } from "@/src/constants/notification";
 import { useMarkNotificationAsRead, useNotifications } from "@/src/hooks/queries/useNotification";
 import { useAuth } from "@/src/hooks/useAuth";
 import { colors } from "@/src/utils/colors";
@@ -10,7 +11,7 @@ export default function NotificationScreen() {
     const { from } = useLocalSearchParams<{ from?: string }>();
     const { data: notifications = [], isLoading } =
         useNotifications(user?.id)
-
+    console.log(notifications)
     const { mutate: markAsRead } =
         useMarkNotificationAsRead(user?.id!)
 
@@ -39,18 +40,10 @@ export default function NotificationScreen() {
                     data={notifications}
                     keyExtractor={(item) => item.id}
                     contentContainerStyle={{ padding: 16 }}
+                    ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
                     renderItem={({ item }) => (
-                        <Pressable
-                            onPress={() => markAsRead(item.id)}
-                            style={{
-                                padding: 12,
-                                marginBottom: 10,
-                                backgroundColor: item.is_read ? "#eee" : "#fff",
-                                borderRadius: 12,
-                            }}
-                        >
-                            <Text style={{ fontWeight: "bold" }}>{item.title}</Text>
-                            <Text>{item.body}</Text>
+                        <Pressable onPress={() => markAsRead(item.id)}>
+                            <NotificationItem notification={item} />
                         </Pressable>
                     )}
                 />

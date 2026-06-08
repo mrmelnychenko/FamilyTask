@@ -29,7 +29,7 @@ type Props = {
 };
 
 export function TaskForm({ members, currentUserId, loading, error, onSubmit }: Props) {
-  console.log(members, '3333333333333')
+
   const { isAdmin, isOwner } = useCurrentFamilyRole()
 
 const canAssignToOthers = isAdmin || isOwner

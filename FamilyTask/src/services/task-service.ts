@@ -124,11 +124,7 @@ export async function createTaskService(params: CreateTaskParams) {
       priority: params.priority,
       category: params.category,
       xp_reward:
-        params.priority === "high"
-          ? 15
-          : params.priority === "normal"
-          ? 10
-          : 5,
+        params.priority === "high" ? 15 : params.priority === "normal" ? 10 : 5,
       is_recurring: params.is_recurring,
       recurrence: params.recurrence ?? null,
       recurrence_days: params.recurrence_days ?? null,
@@ -147,21 +143,33 @@ export async function completeTask(
   userId: string,
   xpEarned: number,
   recurringDate?: string
-): Promise<void> {
+) {
   const isRecurring = !!recurringDate;
-
-  await Promise.all([
-    supabase.from("task_completions").insert({
+  const { error: insertError } = await supabase
+    .from("task_completions")
+    .insert({
       task_id: taskId,
       user_id: userId,
       xp_earned: xpEarned,
       recurring_date: recurringDate ?? null,
-    }),
+    });
 
-    !isRecurring
-      ? supabase.from("tasks").update({ status: "DONE" }).eq("id", taskId)
-      : Promise.resolve(),
-  ]);
+  if (insertError) {
+    console.log("INSERT ERROR:", insertError);
+    throw insertError;
+  }
+
+  if (!isRecurring) {
+    const { error: updateError } = await supabase
+      .from("tasks")
+      .update({ status: "DONE" })
+      .eq("id", taskId);
+
+    if (updateError) {
+      console.log("UPDATE ERROR:", updateError);
+      throw updateError;
+    }
+  }
 }
 
 export async function uncompleteTask(
@@ -196,16 +204,12 @@ export async function deleteTask(taskId: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function changePassword(newPassword: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
 
-
-export async function changePassword(
-    newPassword: string
-): Promise<void> {
-    const { error } = await supabase.auth.updateUser({
-        password: newPassword,
-    });
-
-    if (error) {
-        throw error;
-    }
+  if (error) {
+    throw error;
+  }
 }

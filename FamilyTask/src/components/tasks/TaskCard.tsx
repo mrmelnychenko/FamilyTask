@@ -54,7 +54,6 @@ export function TaskCard({ task, selectedDate }: Props) {
   };
 
   const taskCategory = TASK_CATEGORIES.find((cat) => cat.key === task.category);
-  console.log(taskCategory, 'taskCategorytaskCategory')
   return (
     <View
       style={{

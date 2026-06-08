@@ -1,6 +1,5 @@
 import { supabase } from "@/src/lib/supabase";
 import {
-  createNotification,
   getNotifications,
   markNotificationAsRead,
 } from "@/src/services/notification-service";
@@ -28,26 +27,6 @@ export function useNotifications(userId?: string) {
     queryKey: ["notifications", userId],
     queryFn: () => getNotifications(userId!),
     enabled: !!userId,
-  });
-}
-
-export function useCreateNotification(userId?: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createNotification,
-
-    onSuccess: () => {
-      if (!userId) return;
-
-      queryClient.invalidateQueries({
-        queryKey: ["notifications", userId],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["notifications-unread", userId],
-      });
-    },
   });
 }
 

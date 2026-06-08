@@ -8,7 +8,6 @@ import {
   uncompleteTask,
 } from "@/src/services/task-service";
 import { CreateTaskParams } from "@/src/types/task";
-import { createTaskUseCase } from "@/src/use-cases/task-service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { format } from "date-fns";

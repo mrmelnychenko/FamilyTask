@@ -1,3 +1,6 @@
+import { IProfile } from "./profile";
+import { ITask } from "./task";
+
 export enum NotificationType {
     TASK_ASSIGNED = "TASK_ASSIGNED",
     TASK_COMPLETED = "TASK_COMPLETED",
@@ -10,7 +13,7 @@ export enum NotificationType {
     FAMILY_WELCOME = "FAMILY_WELCOME"
   }
   
-  export type Notification = {
+  export interface INotification {
     id: string;
     user_id: string;
     type: NotificationType;
@@ -18,4 +21,10 @@ export enum NotificationType {
     body: string;
     is_read: boolean;
     created_at: string;
+    actor: IProfile;
+    task: ITask;
+  
+    actor_id?: string | null;
+    task_id?: string | null;
+    family_id?: string | null;
   };
